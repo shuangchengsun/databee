@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    username: alan
+    password: Sun196130
+    url: jdbc:mysql://rm-2ze6tlyn0l3812nsmqo.mysql.rds.aliyuncs.com:3306/databee
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
