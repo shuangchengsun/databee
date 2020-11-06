@@ -65,6 +65,11 @@ public class SpiderTaskConfig {
      */
     private int priority;
 
+    /**
+     * 开启的线程数
+     */
+    private int thread;
+
 
     public String getTaskName() {
         return taskName;
@@ -152,5 +157,13 @@ public class SpiderTaskConfig {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public int getThread() {
+        return thread;
+    }
+
+    public void setThread(int thread) {
+        this.thread = thread;
     }
 }

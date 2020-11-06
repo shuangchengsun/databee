@@ -30,20 +30,21 @@ public class Task implements Comparable<Task> {
         if (componentConfig.getPageModel() != null) {
             spider = OOSpider.create(Site.me(), componentConfig.getPageModel().getClass())
                     .addUrl(taskConfig.getUrl())
-                    .setDownloader(componentConfig.getDownloader())
-                    .thread(1);
+                    .setDownloader(componentConfig.getDownloader());
             for (Pipeline pipeline : componentConfig.getPipelines()) {
                 spider.addPipeline(pipeline);
             }
         } else if (componentConfig.getPageProcessor() != null) {
             spider = OOSpider.create(componentConfig.getPageProcessor())
                     .addUrl(taskConfig.getUrl())
-                    .setDownloader(componentConfig.getDownloader())
-                    .thread(1);
+                    .setDownloader(componentConfig.getDownloader());
+            for (Pipeline pipeline : componentConfig.getPipelines()) {
+                spider.addPipeline(pipeline);
+            }
         } else {
             throw new SpiderTaskException(SpiderErrorEnum.Component_Not_Fount);
         }
-        spider.runAsync();
+        spider.run();
     }
 
     @Override

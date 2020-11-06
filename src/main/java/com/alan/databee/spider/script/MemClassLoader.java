@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class MemClassLoader extends URLClassLoader {
 
-    Map<String,byte[]> classBytes = new HashMap<>();
+    private Map<String,byte[]> classBytes = new HashMap<>();
 
 
     public MemClassLoader(Map<String, byte[]> classBytes) {
@@ -32,5 +32,14 @@ public class MemClassLoader extends URLClassLoader {
         }
         classBytes.remove(name);
         return defineClass(name, buf, 0, buf.length);
+    }
+
+    protected  Map<String, Class<?>> getAllClass() throws ClassNotFoundException {
+        Map<String, Class<?>> classMap = new HashMap<>();
+        for(String name:classBytes.keySet()){
+            Class<?> aClass = findClass(name);
+            classMap.put(name,aClass);
+        }
+        return classMap;
     }
 }

@@ -21,7 +21,7 @@ public class SpiderManager {
     @Autowired
     TaskService taskService;
 
-//    @Scheduled(cron = "30 * * * * ?")
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void runTask(){
 
         PriorityQueue<Task> tasks = taskService.AssemblyTask();

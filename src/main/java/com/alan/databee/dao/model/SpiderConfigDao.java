@@ -33,6 +33,8 @@ public class SpiderConfigDao {
 
     private int priority;
 
+    private int thread;
+
     public int getId() {
         return id;
     }
@@ -127,5 +129,13 @@ public class SpiderConfigDao {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public int getThread() {
+        return thread;
+    }
+
+    public void setThread(int thread) {
+        this.thread = thread;
     }
 }

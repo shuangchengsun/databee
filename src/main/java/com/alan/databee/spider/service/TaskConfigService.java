@@ -13,11 +13,9 @@ import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
 import com.alan.databee.spider.model.User;
 import com.alan.databee.spider.script.ScriptService;
-import com.alibaba.fastjson.JSON;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import us.codecraft.webmagic.downloader.AbstractDownloader;
 import us.codecraft.webmagic.downloader.Downloader;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
@@ -52,7 +50,7 @@ public class TaskConfigService {
     ScriptService scriptService;
 //    private GroovyClassLoader loader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader());
 
-    List<SpiderTaskConfig> getAllTask() {
+    public List<SpiderTaskConfig> getAllTask() {
         List<SpiderConfigDao> daily = spiderConfigMapper.getDaily();
         List<SpiderTaskConfig> taskConfigs = new LinkedList<>();
         try {
@@ -87,6 +85,8 @@ public class TaskConfigService {
                 taskConfig.setTaskType(spiderConfigDao.getTaskType());
 
                 taskConfig.setUrl(spiderConfigDao.getUrl());
+
+                taskConfig.setThread(spiderConfigDao.getThread());
 
                 taskConfigs.add(taskConfig);
 
