@@ -1,8 +1,9 @@
 package com.alan.databee.spider.model;
 
-import us.codecraft.webmagic.downloader.Downloader;
-import us.codecraft.webmagic.pipeline.Pipeline;
-import us.codecraft.webmagic.processor.PageProcessor;
+
+import com.alan.databee.spider.downloader.Downloader;
+import com.alan.databee.spider.pipeline.Pipeline;
+import com.alan.databee.spider.processor.PageProcessor;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class SpiderComponentConfig {
     /**
      * 页面模型
      */
-    private AbstractPageModel pageModel;
+    private PageModel pageModel;
 
     /**
      * 用于持久化
@@ -51,11 +52,11 @@ public class SpiderComponentConfig {
         this.downloader = downloader;
     }
 
-    public AbstractPageModel getPageModel() {
+    public PageModel getPageModel() {
         return pageModel;
     }
 
-    public void setPageModel(AbstractPageModel pageModel) {
+    public void setPageModel(PageModel pageModel) {
         this.pageModel = pageModel;
     }
 

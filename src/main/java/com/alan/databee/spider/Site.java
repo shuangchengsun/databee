@@ -7,7 +7,7 @@ import com.alan.databee.spider.pipeline.Pipeline;
 import com.alan.databee.spider.processor.PageProcessor;
 import com.alan.databee.spider.scheduler.Scheduler;
 import com.alan.databee.spider.utils.HttpConstant;
-import us.codecraft.webmagic.utils.UrlUtils;
+import com.alan.databee.spider.utils.UrlUtils;
 
 import java.util.*;
 

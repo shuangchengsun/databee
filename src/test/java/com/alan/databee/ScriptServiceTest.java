@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Map;
+
 /**
  * @ClassName ScriptServiceTest
  * @Author sunshuangcheng
@@ -41,7 +43,8 @@ public class ScriptServiceTest {
 
     @Test
     public void testCompiler(){
-        Class<?> news163 = scriptService.genClass("ConsolePipeline", code);
+        Map<String, Class<?>> consolePipeline = scriptService.genClass("ConsolePipeline", code);
+        Class<?> aClass = consolePipeline.get("ConsolePipeline");
     }
 
 }

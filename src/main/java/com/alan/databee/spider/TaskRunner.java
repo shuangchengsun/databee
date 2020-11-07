@@ -10,7 +10,7 @@ import com.alan.databee.spider.processor.PageProcessor;
 import com.alan.databee.spider.scheduler.Scheduler;
 import com.alan.databee.spider.thread.CountableThreadPool;
 import org.apache.commons.collections.CollectionUtils;
-import us.codecraft.webmagic.utils.UrlUtils;
+import com.alan.databee.spider.utils.UrlUtils;
 
 
 import java.util.Deque;

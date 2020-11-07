@@ -1,29 +1,26 @@
 package com.alan.databee.spider.service;
 
 import com.alan.databee.dao.mapper.ComponentConfigMapper;
-import com.alan.databee.dao.mapper.ComponentMapper;
 import com.alan.databee.dao.mapper.SpiderConfigMapper;
 import com.alan.databee.dao.mapper.UserMapper;
 import com.alan.databee.dao.model.ComponentConfigDao;
-import com.alan.databee.dao.model.ComponentDao;
 import com.alan.databee.dao.model.SpiderConfigDao;
 import com.alan.databee.dao.model.UserDao;
-import com.alan.databee.spider.model.AbstractPageModel;
+import com.alan.databee.spider.downloader.Downloader;
+import com.alan.databee.spider.downloader.HttpClientDownloader;
+import com.alan.databee.spider.model.PageModel;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
 import com.alan.databee.spider.model.User;
-import com.alan.databee.spider.script.ScriptService;
-import org.junit.Assert;
+import com.alan.databee.spider.pipeline.ConsolePipeline;
+import com.alan.databee.spider.pipeline.Pipeline;
+import com.alan.databee.spider.processor.PageProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import us.codecraft.webmagic.downloader.Downloader;
-import us.codecraft.webmagic.downloader.HttpClientDownloader;
-import us.codecraft.webmagic.pipeline.ConsolePipeline;
-import us.codecraft.webmagic.pipeline.Pipeline;
-import us.codecraft.webmagic.processor.PageProcessor;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @ClassName TaskConfigService
@@ -37,8 +34,6 @@ public class TaskConfigService {
     @Autowired(required = false)
     private SpiderConfigMapper spiderConfigMapper;
 
-    @Autowired(required = false)
-    private ComponentMapper componentMapper;
 
     @Autowired(required = false)
     private ComponentConfigMapper componentConfigMapper;
@@ -47,7 +42,8 @@ public class TaskConfigService {
     private UserMapper userMapper;
 
     @Autowired
-    ScriptService scriptService;
+    private ClassService classService;
+
 //    private GroovyClassLoader loader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader());
 
     public List<SpiderTaskConfig> getAllTask() {
@@ -105,58 +101,48 @@ public class TaskConfigService {
         return user;
     }
 
-    private SpiderComponentConfig componentConfigCreator(ComponentConfigDao componentConfigDao) throws IllegalAccessException, InstantiationException{
+    private SpiderComponentConfig componentConfigCreator(ComponentConfigDao componentConfigDao) throws IllegalAccessException, InstantiationException {
         SpiderComponentConfig componentConfig = new SpiderComponentConfig();
 
         componentConfig.setVersion(componentConfigDao.getVersion());
         // downloader
         String downloaderName = componentConfigDao.getDownloader();
-        if (downloaderName != null) {
-            ComponentDao componentDao = componentMapper.getByName(downloaderName);
-            Class<?> downloaderClass = scriptService.genClass(downloaderName, componentDao.getContent());
-            Downloader downloader = (Downloader) downloaderClass.newInstance();
-            componentConfig.setDownloader(downloader);
-        }else {
-            componentConfig.setDownloader(new HttpClientDownloader());
-        }
-
-        // pageModel
-        String pageModelName = componentConfigDao.getPageModel();
-        if (pageModelName != null) {
-//            Class<?> pageModelClass = loader.parseClass(pageModel);
-            ComponentDao pageModelDao = componentMapper.getByName(pageModelName);
-            Class<?> pageModelClass = scriptService.genClass(pageModelName, pageModelDao.getContent());
-            AbstractPageModel page = (AbstractPageModel) pageModelClass.newInstance();
-            componentConfig.setPageModel(page);
-        }
-
-        // pageProcessor
-        String parserName = componentConfigDao.getParser();
-        if (parserName != null && parserName.length()>0) {
-//            Class<?> parserClass = loader.parseClass(parser);
-            ComponentDao parserDao = componentMapper.getByName(parserName);
-            Class<?> parserClass = scriptService.genClass(parserName, parserDao.getContent());
-            PageProcessor processor = (PageProcessor) parserClass.newInstance();
-            componentConfig.setPageProcessor(processor);
-        }
-
-        // 此处应该是一个List，里面是一个组件的名字
-        String persistenceHandler = componentConfigDao.getPersistenceHandler();
-        List<Pipeline> pipelines = new LinkedList<>();
-        if(persistenceHandler != null) {
-            String[] handlers = persistenceHandler.split(",");
-            for (String name : handlers) {
-                ComponentDao componentDao = componentMapper.getByName(name);
-                Assert.assertNotNull(componentDao);
-                String content = componentDao.getContent();
-                Class<?> aClass = scriptService.genClass(name,content);
-                Pipeline pipeline = (Pipeline) aClass.newInstance();
-                pipelines.add(pipeline);
+        try {
+            if (downloaderName != null) {
+                Downloader downloader = (Downloader) classService.getComByName(downloaderName);
+                componentConfig.setDownloader(downloader);
+            } else {
+                componentConfig.setDownloader(new HttpClientDownloader());
             }
-        }else {
-            pipelines.add(new ConsolePipeline());
+            // pageModel
+            String pageModelName = componentConfigDao.getPageModel();
+            if (pageModelName != null) {
+                PageModel page = (PageModel) classService.getComByName(pageModelName);
+                componentConfig.setPageModel(page);
+            }
+            // pageProcessor
+            String parserName = componentConfigDao.getParser();
+            if (parserName != null && parserName.length() > 0) {
+                PageProcessor processor = (PageProcessor) classService.getComByName(parserName);
+                componentConfig.setPageProcessor(processor);
+            }
+
+            // 此处应该是一个List，里面是一个组件的名字
+            String persistenceHandler = componentConfigDao.getPersistenceHandler();
+            List<Pipeline> pipelines = new LinkedList<>();
+            if (persistenceHandler != null) {
+                String[] handlers = persistenceHandler.split(",");
+                for (String name : handlers) {
+                    Pipeline pipeline = (Pipeline) classService.getComByName(name);
+                    pipelines.add(pipeline);
+                }
+            } else {
+                pipelines.add(new ConsolePipeline());
+            }
+            componentConfig.setPipelines(pipelines);
+        } catch (ExecutionException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
         }
-        componentConfig.setPipelines(pipelines);
         return componentConfig;
     }
 

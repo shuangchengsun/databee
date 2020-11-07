@@ -21,21 +21,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ScriptService {
 
-    // 缓存编译的class。
-    private Cache<String,Class<?>> classCache;
-
     public ScriptService() {
-        classCache = CacheBuilder.newBuilder()
-                .expireAfterAccess(4, TimeUnit.HOURS)
-                .build();
     }
 
-    public Class<?> genClass(String name, String script) {
-        Class<?> aClass = classCache.getIfPresent(name);
-        if(aClass != null){
-            return aClass;
-        }
-        String fileName = name+".java";
+    public Map<String, Class<?>> genClass(String name, String script) {
+        String fileName = name + ".java";
         Map<String, byte[]> classBytes = new HashMap<>();
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         StandardJavaFileManager stdManager = compiler.getStandardFileManager(null, null, null);
@@ -47,14 +37,9 @@ public class ScriptService {
         }
         try {
             MemClassLoader classLoader = new MemClassLoader(classBytes);
-            classCache.putAll(classLoader.getAllClass());
-            aClass = classCache.getIfPresent(name);
-            if(aClass == null){
-                throw new ClassNotFoundException(name + " class not found");
-            }
-            return aClass;
-        }catch (ClassNotFoundException e) {
-           throw new ScriptException(SpiderErrorEnum.Script_Compiler_Error,e);
+            return classLoader.getAllClass();
+        } catch (ClassNotFoundException e) {
+            throw new ScriptException(SpiderErrorEnum.Script_Compiler_Error, e);
         }
     }
 }

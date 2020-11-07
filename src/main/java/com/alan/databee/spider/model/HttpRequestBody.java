@@ -62,7 +62,7 @@ public class HttpRequestBody implements Serializable {
 
     public static HttpRequestBody json(String json, String encoding) {
         try {
-            return new HttpRequestBody(json.getBytes(encoding), us.codecraft.webmagic.model.HttpRequestBody.ContentType.JSON, encoding);
+            return new HttpRequestBody(json.getBytes(encoding), HttpRequestBody.ContentType.JSON, encoding);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("illegal encoding " + encoding, e);
         }
@@ -70,7 +70,7 @@ public class HttpRequestBody implements Serializable {
 
     public static HttpRequestBody xml(String xml, String encoding) {
         try {
-            return new HttpRequestBody(xml.getBytes(encoding), us.codecraft.webmagic.model.HttpRequestBody.ContentType.XML, encoding);
+            return new HttpRequestBody(xml.getBytes(encoding), HttpRequestBody.ContentType.XML, encoding);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("illegal encoding " + encoding, e);
         }
@@ -86,7 +86,7 @@ public class HttpRequestBody implements Serializable {
             nameValuePairs.add(new BasicNameValuePair(entry.getKey(), String.valueOf(entry.getValue())));
         }
         try {
-            return new HttpRequestBody(URLEncodedUtils.format(nameValuePairs, encoding).getBytes(encoding), us.codecraft.webmagic.model.HttpRequestBody.ContentType.FORM, encoding);
+            return new HttpRequestBody(URLEncodedUtils.format(nameValuePairs, encoding).getBytes(encoding), HttpRequestBody.ContentType.FORM, encoding);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("illegal encoding " + encoding, e);
         }
