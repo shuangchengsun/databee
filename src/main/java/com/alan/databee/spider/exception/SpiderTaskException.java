@@ -15,4 +15,8 @@ public class SpiderTaskException extends RuntimeException {
     public SpiderTaskException(SpiderErrorEnum errorEnum, Throwable cause) {
         super(errorEnum.msg, cause);
     }
+
+    public SpiderTaskException(SpiderErrorEnum errorEnum, String msg){
+        super(errorEnum.msg+", " +msg);
+    }
 }

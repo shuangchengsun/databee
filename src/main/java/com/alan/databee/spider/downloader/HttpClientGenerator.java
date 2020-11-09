@@ -146,7 +146,7 @@ public class HttpClientGenerator {
         CookieStore cookieStore = new BasicCookieStore();
         for (Map.Entry<String, String> cookieEntry : site.getCookies().entrySet()) {
             BasicClientCookie cookie = new BasicClientCookie(cookieEntry.getKey(), cookieEntry.getValue());
-            cookie.setDomain(site.getDomain());
+            cookie.setDomain(site.getSeed());
             cookieStore.addCookie(cookie);
         }
         for (Map.Entry<String, Map<String, String>> domainEntry : site.getAllCookies().entrySet()) {

@@ -1,13 +1,18 @@
 package com.alan.databee.pageProcessor;
 
 
+import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.spider.Site;
 import com.alan.databee.spider.page.Page;
 import com.alan.databee.spider.processor.PageProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CnipaPageProcessor implements PageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger("PageProcessorLogger");
     @Override
     public void process(Page page, Site site) {
         String xpath = page.getHtml().xpath("//ul[@class='list clearfix']").toString();
@@ -17,7 +22,8 @@ public class CnipaPageProcessor implements PageProcessor {
         while(matcher.find()) {
             String res = matcher.group();
             String url = res.substring(0, res.length() - 2).replace(';','&');
-            site.addUrl(url);
+            LoggerUtil.info(logger,page.getRequest().getUrl(),url);
+            site.setSeed(url);
         }
         site.removeProcessor(this);
         site.processorAddLast("pdfProcessor",new PdfProcessor());

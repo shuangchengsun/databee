@@ -4,6 +4,7 @@ package com.alan.databee.spider.model;
 import com.alan.databee.spider.downloader.Downloader;
 import com.alan.databee.spider.pipeline.Pipeline;
 import com.alan.databee.spider.processor.PageProcessor;
+import com.alan.databee.spider.scheduler.Scheduler;
 
 import java.util.List;
 
@@ -33,6 +34,11 @@ public class SpiderComponentConfig {
      * 用于持久化
      */
     private List<Pipeline> pipelines;
+
+    /**
+     * 调度器
+     */
+    private Scheduler scheduler;
 
     private PageProcessor pageProcessor;
 
@@ -74,5 +80,13 @@ public class SpiderComponentConfig {
 
     public void setPageProcessor(PageProcessor pageProcessor) {
         this.pageProcessor = pageProcessor;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
 }

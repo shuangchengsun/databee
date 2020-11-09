@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="http://www.padual.com/java/logback.xsd"
+               debug="false" scan="true" scanPeriod="300 seconds"
+               xsi:schemaLocation="http://www.padual.com/java/logback.xsd">
+
+    <property name="logPath" value="/Users/sunshuangcheng/source/java/databee/logs"/>
+
+    <!--控制台-->
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{50}) - %highlight(%msg) %n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!--通用错误-->
+    <appender name="commonError" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/common-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>common-error.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <appender name="common" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/common.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>common.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="com.alan.databee.common.util.log.LogLevelFilter">
+            <minLevel>info</minLevel>
+            <maxLevel>warn</maxLevel>
+        </filter>
+    </appender>
+    <root level="info">
+        <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="commonError"/>
+    </root>
+
+    <!--和数据库相关的日志-->
+    <appender name="taskConfigAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/taskConfig.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>taskConfig.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="taskConfigLogger" level="info">
+        <appender-ref ref="taskConfigAppender"/>
+    </logger>
+
+    <!--task处理过程的日志-->
+    <appender name="PageProcessorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/pageProcessor.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>pageProcessor.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="com.alan.databee.common.util.log.LogLevelFilter">
+            <minLevel>info</minLevel>
+            <maxLevel>warn</maxLevel>
+        </filter>
+    </appender>
+    <logger name="PageProcessorLogger" level="info" additivity="false">
+        <appender-ref ref="PageProcessorAppender"/>
+    </logger>
+
+    <!--生成脚本的日志-->
+    <appender name="scriptAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/script.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>script.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="com.alan.databee.common.util.log.LogLevelFilter">
+            <minLevel>info</minLevel>
+            <maxLevel>warn</maxLevel>
+        </filter>
+    </appender>
+    <logger name="scriptLogger" level="info">
+        <appender-ref ref="scriptAppender"/>
+    </logger>
+
+    <!--taskRunner 的日志，记录一个task的任务情况，主要是记录task的失败原因-->
+    <appender name="taskRunnerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/taskRunner.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>taskRunner.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="taskRunnerLogger" level="info" additivity="false">
+        <appender-ref ref="taskRunnerAppender"/>
+    </logger>
+
+    <!--每天处理的task的总记录-->
+    <appender name="taskAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/task.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>task.%i.log.zip</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>10</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>20MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="taskLogger" level="info" additivity="true">
+        <appender-ref ref="taskAppender"/>
+    </logger>
+
+
+
+
+</configuration>

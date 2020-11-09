@@ -23,7 +23,7 @@ public class SpiderTest {
 
     @Test
     public void spiderManagerTest(){
-        manager.runTask();
+        manager.runDailyTask();
         try {
             Thread.sleep(20000);
         } catch (InterruptedException e) {

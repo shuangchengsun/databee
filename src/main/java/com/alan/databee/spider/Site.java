@@ -7,52 +7,123 @@ import com.alan.databee.spider.pipeline.Pipeline;
 import com.alan.databee.spider.processor.PageProcessor;
 import com.alan.databee.spider.scheduler.Scheduler;
 import com.alan.databee.spider.utils.HttpConstant;
-import com.alan.databee.spider.utils.UrlUtils;
 
 import java.util.*;
 
+/**
+ * 每个site和一个task一一对应，标志着task的运行上下文以及运行环境。
+ */
 public class Site {
-    private String domain;
 
+    /**
+     * 任务名称，一个site和一个task一一对应
+     */
+    private String taskName;
+
+    /**
+     * 本task的浏览器Agent
+     */
     private String userAgent;
 
+    /**
+     * task初始默认的cookies
+     */
     private Map<String, String> defaultCookies = new LinkedHashMap<String, String>();
 
+    /**
+     * 网络交互的cookies
+     */
     private Map<String, Map<String, String>> cookies = new HashMap<String, Map<String, String>>();
 
+    /**
+     * 本次网络交互的字符集
+     */
     private String charset;
 
-    private int sleepTime = 5000;
+    /**
+     * 每次网络交互中间的间隔时间
+     */
+    private int sleepTime = 2000;
 
+    /**
+     * 网络请求失败重试次数
+     */
     private int retryTimes = 0;
 
+    /**
+     * 网络请求失败循环重试次数
+     */
     private int cycleRetryTimes = 0;
 
+    /**
+     * 重试睡眠的时间
+     */
     private int retrySleepTime = 1000;
 
+    /**
+     * 网络请求超时时间
+     */
     private int timeOut = 5000;
 
+    /**
+     * 状态码集合
+     */
     private static final Set<Integer> DEFAULT_STATUS_CODE_SET = new HashSet<Integer>();
 
+    /**
+     * 网络请求所允许的状态码集合
+     */
     private Set<Integer> acceptStatCode = DEFAULT_STATUS_CODE_SET;
 
+    /**
+     * 请求头
+     */
     private Map<String, String> headers = new HashMap<String, String>();
 
+    /**
+     * 是否使用GZip压缩网络数据
+     */
     private boolean useGzip = true;
 
+    /**
+     * 禁止cookie
+     */
     private boolean disableCookieManagement = false;
 
+    /**
+     * 下载器
+     */
     private Downloader downloader;
 
+    /**
+     * 页面的处理器
+     */
     private Deque<Component> pageProcessors = new LinkedList<>();
 
+    /**
+     * 持久化器
+     */
     private Deque<Component> pipelines = new LinkedList<>();
 
+    /**
+     * 命名空间
+     */
     private final Set<String> nameSet = new HashSet<>();
 
+    /**
+     * 调度器
+     */
     private Scheduler scheduler;
 
-    private Request startRequest;
+    /**
+     * 描述一个种子最终所有下载处理的页面
+     */
+    private int pageCount;
+
+    /**
+     * 根种子，一个seed唯一对应于一个task
+     */
+    private String seed;
 
 
     static {
@@ -69,7 +140,7 @@ public class Site {
     }
 
     /**
-     * Add a cookie with domain {@link #getDomain()}
+     * Add a cookie with domain
      *
      * @param name  name
      * @param value value
@@ -132,26 +203,6 @@ public class Site {
      */
     public String getUserAgent() {
         return userAgent;
-    }
-
-    /**
-     * get domain
-     *
-     * @return get domain
-     */
-    public String getDomain() {
-        return domain;
-    }
-
-    /**
-     * set the domain of site.
-     *
-     * @param domain domain
-     * @return this
-     */
-    public Site setDomain(String domain) {
-        this.domain = domain;
-        return this;
     }
 
     /**
@@ -340,23 +391,6 @@ public class Site {
         return this;
     }
 
-    public Task toTask() {
-        return new Task() {
-            @Override
-            public String getUUID() {
-                String uuid = Site.this.getDomain();
-                if (uuid == null) {
-                    uuid = UUID.randomUUID().toString();
-                }
-                return uuid;
-            }
-
-            @Override
-            public Site getSite() {
-                return Site.this;
-            }
-        };
-    }
 
     public Site processorAddLast(PageProcessor processor) {
         Component component = new Component(processor);
@@ -487,8 +521,8 @@ public class Site {
 
     public Site setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
-        if (startRequest != null) {
-            scheduler.push(startRequest, null);
+        if (seed != null) {
+            scheduler.push(new Request(seed), null);
         }
         return this;
     }
@@ -505,67 +539,56 @@ public class Site {
         return pipelines;
     }
 
-    public Site addUrl(String url) {
+    public Site addSeed(String url) {
         if (scheduler == null) {
-            startRequest = new Request(url);
+            this.seed = url;
         } else {
+            this.seed = url;
             scheduler.push(new Request(url), null);
         }
-        domain = UrlUtils.getDomain(url);
         return this;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Site site = (Site) o;
-
-        if (cycleRetryTimes != site.cycleRetryTimes) return false;
-        if (retryTimes != site.retryTimes) return false;
-        if (sleepTime != site.sleepTime) return false;
-        if (timeOut != site.timeOut) return false;
-        if (acceptStatCode != null ? !acceptStatCode.equals(site.acceptStatCode) : site.acceptStatCode != null)
-            return false;
-        if (charset != null ? !charset.equals(site.charset) : site.charset != null) return false;
-        if (defaultCookies != null ? !defaultCookies.equals(site.defaultCookies) : site.defaultCookies != null)
-            return false;
-        if (domain != null ? !domain.equals(site.domain) : site.domain != null) return false;
-        if (headers != null ? !headers.equals(site.headers) : site.headers != null) return false;
-        if (userAgent != null ? !userAgent.equals(site.userAgent) : site.userAgent != null) return false;
-
-        return true;
+    public void pageCountAdd(int num){
+        this.pageCount += num;
     }
 
-    @Override
-    public int hashCode() {
-        int result = domain != null ? domain.hashCode() : 0;
-        result = 31 * result + (userAgent != null ? userAgent.hashCode() : 0);
-        result = 31 * result + (defaultCookies != null ? defaultCookies.hashCode() : 0);
-        result = 31 * result + (charset != null ? charset.hashCode() : 0);
-        result = 31 * result + sleepTime;
-        result = 31 * result + retryTimes;
-        result = 31 * result + cycleRetryTimes;
-        result = 31 * result + timeOut;
-        result = 31 * result + (acceptStatCode != null ? acceptStatCode.hashCode() : 0);
-        result = 31 * result + (headers != null ? headers.hashCode() : 0);
-        return result;
+    public int getPageCount() {
+        return pageCount;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
+
+    public String getSeed() {
+        return seed;
+    }
+
+    public void setSeed(String seed) {
+        this.seed = seed;
     }
 
     @Override
     public String toString() {
         return "Site{" +
-                "domain='" + domain + '\'' +
+                "taskName='" + taskName + '\'' +
                 ", userAgent='" + userAgent + '\'' +
-                ", cookies=" + defaultCookies +
                 ", charset='" + charset + '\'' +
                 ", sleepTime=" + sleepTime +
                 ", retryTimes=" + retryTimes +
                 ", cycleRetryTimes=" + cycleRetryTimes +
+                ", retrySleepTime=" + retrySleepTime +
                 ", timeOut=" + timeOut +
                 ", acceptStatCode=" + acceptStatCode +
                 ", headers=" + headers +
+                ", useGzip=" + useGzip +
+                ", pageCount=" + pageCount +
+                ", seed='" + seed + '\'' +
                 '}';
     }
 

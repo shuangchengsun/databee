@@ -1,5 +1,6 @@
 package com.alan.databee.spider.service;
 
+import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.dao.mapper.ComponentConfigMapper;
 import com.alan.databee.dao.mapper.SpiderConfigMapper;
 import com.alan.databee.dao.mapper.UserMapper;
@@ -8,6 +9,7 @@ import com.alan.databee.dao.model.SpiderConfigDao;
 import com.alan.databee.dao.model.UserDao;
 import com.alan.databee.spider.downloader.Downloader;
 import com.alan.databee.spider.downloader.HttpClientDownloader;
+import com.alan.databee.spider.exception.ClassServiceException;
 import com.alan.databee.spider.model.PageModel;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
@@ -15,12 +17,13 @@ import com.alan.databee.spider.model.User;
 import com.alan.databee.spider.pipeline.ConsolePipeline;
 import com.alan.databee.spider.pipeline.Pipeline;
 import com.alan.databee.spider.processor.PageProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @ClassName TaskConfigService
@@ -30,6 +33,7 @@ import java.util.concurrent.ExecutionException;
  */
 @Service
 public class TaskConfigService {
+    private static final Logger LOGGER = LoggerFactory.getLogger("taskConfigLogger");
 
     @Autowired(required = false)
     private SpiderConfigMapper spiderConfigMapper;
@@ -49,31 +53,33 @@ public class TaskConfigService {
     public List<SpiderTaskConfig> getAllTask() {
         List<SpiderConfigDao> daily = spiderConfigMapper.getDaily();
         List<SpiderTaskConfig> taskConfigs = new LinkedList<>();
-        try {
-            for (SpiderConfigDao spiderConfigDao : daily) {
-                SpiderTaskConfig taskConfig = new SpiderTaskConfig();
 
-                int creator = spiderConfigDao.getCreator();
-                UserDao userdao = userMapper.getById(creator);
-                taskConfig.setCreator(userDaoToUser(userdao));
+        for (SpiderConfigDao spiderConfigDao : daily) {
+            SpiderTaskConfig taskConfig = new SpiderTaskConfig();
 
-                taskConfig.setDepth(spiderConfigDao.getDepth());
+            int creator = spiderConfigDao.getCreator();
+            UserDao userdao = userMapper.getById(creator);
+            taskConfig.setCreator(userDaoToUser(userdao));
 
-                taskConfig.setExpire(spiderConfigDao.getExpire());
+            taskConfig.setDepth(spiderConfigDao.getDepth());
 
-                taskConfig.setGmtCreate(spiderConfigDao.getGmtCreate());
+            taskConfig.setExpire(spiderConfigDao.getExpire());
 
-                taskConfig.setGmtModify(spiderConfigDao.getGmtModify());
+            taskConfig.setGmtCreate(spiderConfigDao.getGmtCreate());
 
-                int modifierId = spiderConfigDao.getModifier();
-                UserDao modifierDao = userMapper.getById(modifierId);
-                taskConfig.setModifier(userDaoToUser(modifierDao));
+            taskConfig.setGmtModify(spiderConfigDao.getGmtModify());
 
-                taskConfig.setPriority(spiderConfigDao.getPriority());
+            int modifierId = spiderConfigDao.getModifier();
+            UserDao modifierDao = userMapper.getById(modifierId);
+            taskConfig.setModifier(userDaoToUser(modifierDao));
+
+            taskConfig.setPriority(spiderConfigDao.getPriority());
 
 
-                int actionConfigId = spiderConfigDao.getActionConfig();
-                ComponentConfigDao componentConfigDao = componentConfigMapper.getById(actionConfigId);
+            int actionConfigId = spiderConfigDao.getActionConfig();
+            ComponentConfigDao componentConfigDao = componentConfigMapper.getById(actionConfigId);
+
+            try {
                 taskConfig.setSpiderComponentConfig(componentConfigCreator(componentConfigDao));
 
                 taskConfig.setTaskName(spiderConfigDao.getTaskName());
@@ -84,13 +90,19 @@ public class TaskConfigService {
 
                 taskConfig.setThread(spiderConfigDao.getThread());
 
-                taskConfigs.add(taskConfig);
-
+                // 打印出一个task的基础配置
+                LoggerUtil.info(LOGGER, taskConfig.getTaskName(), taskConfig.getCreator(), taskConfig.getModifier(),
+                        componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
+                        componentConfigDao.getPipelines());
+            } catch (ClassServiceException e) {
+                // 错误日志
+                LoggerUtil.error(LOGGER, taskConfig.getTaskName(), "装配组件是发生错误", componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
+                        componentConfigDao.getPipelines(), e);
             }
-        } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
-            return null;
+            // 此处不管taskConfig是否合法，都加载到总任务中
+            taskConfigs.add(taskConfig);
         }
+
         return taskConfigs;
     }
 
@@ -101,48 +113,45 @@ public class TaskConfigService {
         return user;
     }
 
-    private SpiderComponentConfig componentConfigCreator(ComponentConfigDao componentConfigDao) throws IllegalAccessException, InstantiationException {
+    private SpiderComponentConfig componentConfigCreator(ComponentConfigDao componentConfigDao) throws ClassServiceException {
         SpiderComponentConfig componentConfig = new SpiderComponentConfig();
 
         componentConfig.setVersion(componentConfigDao.getVersion());
+
         // downloader
         String downloaderName = componentConfigDao.getDownloader();
-        try {
-            if (downloaderName != null) {
-                Downloader downloader = (Downloader) classService.getComByName(downloaderName);
-                componentConfig.setDownloader(downloader);
-            } else {
-                componentConfig.setDownloader(new HttpClientDownloader());
-            }
-            // pageModel
-            String pageModelName = componentConfigDao.getPageModel();
-            if (pageModelName != null) {
-                PageModel page = (PageModel) classService.getComByName(pageModelName);
-                componentConfig.setPageModel(page);
-            }
-            // pageProcessor
-            String parserName = componentConfigDao.getParser();
-            if (parserName != null && parserName.length() > 0) {
-                PageProcessor processor = (PageProcessor) classService.getComByName(parserName);
-                componentConfig.setPageProcessor(processor);
-            }
-
-            // 此处应该是一个List，里面是一个组件的名字
-            String persistenceHandler = componentConfigDao.getPersistenceHandler();
-            List<Pipeline> pipelines = new LinkedList<>();
-            if (persistenceHandler != null) {
-                String[] handlers = persistenceHandler.split(",");
-                for (String name : handlers) {
-                    Pipeline pipeline = (Pipeline) classService.getComByName(name);
-                    pipelines.add(pipeline);
-                }
-            } else {
-                pipelines.add(new ConsolePipeline());
-            }
-            componentConfig.setPipelines(pipelines);
-        } catch (ExecutionException | IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+        if (downloaderName != null) {
+            Downloader downloader = (Downloader) classService.getComByName(downloaderName);
+            componentConfig.setDownloader(downloader);
+        } else {
+            componentConfig.setDownloader(new HttpClientDownloader());
         }
+        // pageModel
+        String pageModelName = componentConfigDao.getPageModel();
+        if (pageModelName != null) {
+            PageModel page = (PageModel) classService.getComByName(pageModelName);
+            componentConfig.setPageModel(page);
+        }
+        // pageProcessor
+        String parserName = componentConfigDao.getPageProcessor();
+        if (parserName != null && parserName.length() > 0) {
+            PageProcessor processor = (PageProcessor) classService.getComByName(parserName);
+            componentConfig.setPageProcessor(processor);
+        }
+
+        // 此处应该是一个List，里面是一个组件的名字
+        String persistenceHandler = componentConfigDao.getPipelines();
+        List<Pipeline> pipelines = new LinkedList<>();
+        if (persistenceHandler != null) {
+            String[] handlers = persistenceHandler.split(",");
+            for (String name : handlers) {
+                Pipeline pipeline = (Pipeline) classService.getComByName(name);
+                pipelines.add(pipeline);
+            }
+        } else {
+            pipelines.add(new ConsolePipeline());
+        }
+        componentConfig.setPipelines(pipelines);
         return componentConfig;
     }
 

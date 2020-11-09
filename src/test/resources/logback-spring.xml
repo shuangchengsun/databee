@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="http://www.padual.com/java/logback.xsd"
+               debug="false" scan="true" scanPeriod="300 seconds"
+               xsi:schemaLocation="http://www.padual.com/java/logback.xsd">
+
+    <property name="logPath" value="/Users/sunshuangcheng/source/java/databee"/>
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{50}) - %highlight(%msg) %n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <root level="info">
+        <appender-ref ref="consoleAppender"/>
+    </root>
+
+    <appender name="DaoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/dao.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>dao.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger  - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="DaoLogger" level="warn">
+        <appender-ref ref="DaoAppender"/>
+    </logger>
+
+    <appender name="PageProcessorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/pageProcessor.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>pageProcessor.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger  - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="PageProcessorLogger" level="warn" additivity="false">
+        <appender-ref ref="PageProcessorAppender"/>
+    </logger>
+
+</configuration>

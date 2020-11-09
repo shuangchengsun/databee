@@ -11,13 +11,15 @@ public class ComponentConfigDao {
 
     private int version;
 
-    private String parser;
+    private String pageProcessor;
 
     private String downloader;
 
-    private String persistenceHandler;
+    private String pipelines;
 
     private String pageModel;
+
+    private String Schedule;
 
     public int getId() {
         return id;
@@ -35,12 +37,12 @@ public class ComponentConfigDao {
         this.version = version;
     }
 
-    public String getParser() {
-        return parser;
+    public String getPageProcessor() {
+        return pageProcessor;
     }
 
-    public void setParser(String parser) {
-        this.parser = parser;
+    public void setPageProcessor(String pageProcessor) {
+        this.pageProcessor = pageProcessor;
     }
 
     public String getDownloader() {
@@ -51,12 +53,12 @@ public class ComponentConfigDao {
         this.downloader = downloader;
     }
 
-    public String getPersistenceHandler() {
-        return persistenceHandler;
+    public String getPipelines() {
+        return pipelines;
     }
 
-    public void setPersistenceHandler(String persistenceHandler) {
-        this.persistenceHandler = persistenceHandler;
+    public void setPipelines(String pipelines) {
+        this.pipelines = pipelines;
     }
 
     public String getPageModel() {
@@ -65,5 +67,13 @@ public class ComponentConfigDao {
 
     public void setPageModel(String pageModel) {
         this.pageModel = pageModel;
+    }
+
+    public String getSchedule() {
+        return Schedule;
+    }
+
+    public void setSchedule(String schedule) {
+        Schedule = schedule;
     }
 }

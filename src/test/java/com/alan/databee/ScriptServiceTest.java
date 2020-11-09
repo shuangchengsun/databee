@@ -1,5 +1,6 @@
 package com.alan.databee;
 
+import com.alan.databee.spider.exception.ScriptException;
 import com.alan.databee.spider.script.ScriptService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class ScriptServiceTest {
     ScriptService scriptService;
 
     @Test
-    public void testCompiler(){
+    public void testCompiler() throws ScriptException {
         Map<String, Class<?>> consolePipeline = scriptService.genClass("ConsolePipeline", code);
         Class<?> aClass = consolePipeline.get("ConsolePipeline");
     }

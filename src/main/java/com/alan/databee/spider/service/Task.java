@@ -1,13 +1,13 @@
 package com.alan.databee.spider.service;
 
+import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.spider.Site;
-import com.alan.databee.spider.TaskRunner;
-import com.alan.databee.spider.exception.SpiderErrorEnum;
 import com.alan.databee.spider.exception.SpiderTaskException;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
 import com.alan.databee.spider.pipeline.Pipeline;
-import com.alan.databee.spider.processor.PageProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @ClassName SpiderWorker
@@ -16,35 +16,41 @@ import com.alan.databee.spider.processor.PageProcessor;
  * @Version -V1.0
  */
 public class Task implements Comparable<Task> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Task.class);
+
     private SpiderTaskConfig taskConfig;
     private int priority;
+    public String taskName;
+    private Site site;
 
-    public Task(SpiderTaskConfig taskConfig) {
+    public Task(SpiderTaskConfig taskConfig) throws SpiderTaskException{
         this.taskConfig = taskConfig;
+        this.taskName = taskConfig.getTaskName();
         this.priority = taskConfig.getPriority();
-    }
-
-    public void run() {
         SpiderComponentConfig componentConfig = taskConfig.getSpiderComponentConfig();
         configCheck(componentConfig);
-        Site site = new Site()
-                .addUrl(taskConfig.getUrl())
-                .setDownloader(componentConfig.getDownloader());
+        site = new Site()
+                .addSeed(taskConfig.getUrl())
+                .setDownloader(componentConfig.getDownloader())
+                .setScheduler(componentConfig.getScheduler());
         for (Pipeline pipeline : componentConfig.getPipelines()) {
             site.pipelineAddLast(pipeline);
         }
         site.processorAddLast(componentConfig.getPageProcessor());
-        TaskRunner spider = new TaskRunner(site).setSync(true);
-        spider.run();
     }
 
     private void configCheck(SpiderComponentConfig componentConfig) {
-        if (componentConfig.getPageProcessor() == null
-                || componentConfig.getDownloader() == null
-                || componentConfig.getPipelines() == null
-                || componentConfig.getPipelines().isEmpty()) {
-            throw new SpiderTaskException(SpiderErrorEnum.Component_Not_Fount);
+        if (componentConfig.getPageProcessor() == null) {
+            LoggerUtil.error(LOGGER,"task组件异常",taskName);
         }
+    }
+
+    public SpiderTaskConfig getTaskConfig() {
+        return taskConfig;
+    }
+
+    public Site getSite() {
+        return site;
     }
 
     @Override

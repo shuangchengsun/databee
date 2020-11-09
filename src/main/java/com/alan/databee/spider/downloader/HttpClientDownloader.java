@@ -54,7 +54,7 @@ public class HttpClientDownloader extends AbstractDownloader {
         if (site == null) {
             return httpClientGenerator.getClient(null);
         }
-        String domain = site.getDomain();
+        String domain = site.getSeed();
         CloseableHttpClient httpClient = httpClients.get(domain);
         if (httpClient == null) {
             synchronized (this) {
