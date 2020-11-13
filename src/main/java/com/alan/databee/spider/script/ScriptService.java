@@ -21,7 +21,7 @@ public class ScriptService {
     public ScriptService() {
     }
 
-    public Map<String, Class<?>> genClass(String name, String script) throws ScriptException {
+    public Class<?> genClass(String name, String script) throws ScriptException {
         String fileName = name + ".java";
         Map<String, byte[]> classBytes = new HashMap<>();
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -34,10 +34,25 @@ public class ScriptService {
         }
         try {
             MemClassLoader classLoader = new MemClassLoader(classBytes);
-            return classLoader.getAllClass();
+            return classLoader.findClass(name);
         } catch (ClassNotFoundException e) {
             throw new ScriptException(SpiderErrorEnum.Script_Compiler_Error, e);
         }
+    }
+
+    public Map<String, Class<?>> genAllClass(String name, String script) throws ClassNotFoundException {
+        String fileName = name + ".java";
+        Map<String, byte[]> classBytes = new HashMap<>();
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager stdManager = compiler.getStandardFileManager(null, null, null);
+        MemoryJavaFileManager manager = new MemoryJavaFileManager(stdManager);
+        JavaFileObject javaFileObject = manager.makeStringSource(fileName, script);
+        JavaCompiler.CompilationTask task = compiler.getTask(null, manager, null, null, null, Collections.singletonList(javaFileObject));
+        if (task.call()) {
+            classBytes = manager.getClassBytes();
+        }
+        MemClassLoader classLoader = new MemClassLoader(classBytes);
+        return classLoader.getAllClass();
     }
 }
 

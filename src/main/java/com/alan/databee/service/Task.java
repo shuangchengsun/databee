@@ -1,4 +1,4 @@
-package com.alan.databee.spider.service;
+package com.alan.databee.service;
 
 import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.spider.Site;
@@ -23,7 +23,7 @@ public class Task implements Comparable<Task> {
     public String taskName;
     private Site site;
 
-    public Task(SpiderTaskConfig taskConfig) throws SpiderTaskException{
+    public Task(SpiderTaskConfig taskConfig){
         this.taskConfig = taskConfig;
         this.taskName = taskConfig.getTaskName();
         this.priority = taskConfig.getPriority();

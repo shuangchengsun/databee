@@ -1,13 +1,9 @@
 package com.alan.databee;
 
-import com.alan.databee.spider.SpiderManager;
+import com.alan.databee.service.SpiderManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.hazelcast.HazelcastJpaDependencyAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @ClassName SpiderTest

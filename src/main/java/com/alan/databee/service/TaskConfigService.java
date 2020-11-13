@@ -1,4 +1,4 @@
-package com.alan.databee.spider.service;
+package com.alan.databee.service;
 
 import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.dao.mapper.ComponentConfigMapper;
@@ -154,5 +154,6 @@ public class TaskConfigService {
         componentConfig.setPipelines(pipelines);
         return componentConfig;
     }
+
 
 }

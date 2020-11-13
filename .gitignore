@@ -31,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+!/src/main/java/com/alan/databee/common/util/log

@@ -30,14 +30,13 @@ public class ComLoader extends CacheLoader<String, Class<?>> {
         try {
             paramCheck(componentDao);
         } catch (DaoException e) {
-            LoggerUtil.error(LOGGER, "组件为找到或者组件内容为空", name, e);
+            LoggerUtil.error(LOGGER, "从数据库获取组件文件错误，未找到或文件不全", name, e);
             return null;
         }
         String content = componentDao.getContent();
         Map<String, Class<?>> classMap = null;
         try {
-            classMap = scriptService.genClass(name, content);
-            return classMap.get(name);
+            return scriptService.genClass(name,content);
         } catch (ScriptException e) {
             LoggerUtil.error(LOGGER, "组件编译错误", name, e.getStackTrace());
             return null;

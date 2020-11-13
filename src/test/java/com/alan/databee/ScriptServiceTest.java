@@ -1,8 +1,12 @@
 package com.alan.databee;
 
+import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.spider.exception.ScriptException;
+import com.alan.databee.spider.exception.SpiderErrorEnum;
 import com.alan.databee.spider.script.ScriptService;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -38,14 +42,19 @@ public class ScriptServiceTest {
             "            System.out.println(entry.getKey() + \":\\t\" + entry.getValue());\n" +
             "        }\n" +
             "    }\n" +
-            "}";
+            "";
     @Autowired
     ScriptService scriptService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScriptServiceTest.class);
+
     @Test
-    public void testCompiler() throws ScriptException {
-        Map<String, Class<?>> consolePipeline = scriptService.genClass("ConsolePipeline", code);
-        Class<?> aClass = consolePipeline.get("ConsolePipeline");
+    public void testCompiler(){
+        try {
+            Class<?> consolePipeline = scriptService.genClass("ConsolePipeline", code);
+        }catch (ScriptException exception){
+            LoggerUtil.error(LOGGER, SpiderErrorEnum.Script_Compiler_Error,exception);
+        }
     }
 
 }

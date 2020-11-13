@@ -25,7 +25,7 @@ public class SpiderConfigDao {
 
     private int actionConfig;
 
-    private int depth;
+    private int depth=1;
 
     private Date expire;
 

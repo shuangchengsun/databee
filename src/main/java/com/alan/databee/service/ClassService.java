@@ -1,9 +1,12 @@
-package com.alan.databee.spider.service;
+package com.alan.databee.service;
 
 import com.alan.databee.common.cache.ComLoader;
 import com.alan.databee.common.util.log.LoggerUtil;
+import com.alan.databee.spider.downloader.HttpClientDownloader;
+import com.alan.databee.spider.downloader.SeleniumDownloader;
 import com.alan.databee.spider.exception.ClassServiceException;
 import com.alan.databee.spider.exception.SpiderErrorEnum;
+import com.alan.databee.spider.scheduler.QueueScheduler;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -24,19 +29,22 @@ public class ClassService {
     private static final Logger logger = LoggerFactory.getLogger("scriptAppender");
 
     private LoadingCache<String, Class<?>> classCache;
+    private Map<String,Object> commonComponent = new HashMap<>();
 
     public ClassService() {
         CacheLoader<String, Class<?>> loader = new ComLoader();
         classCache = CacheBuilder.newBuilder().maximumSize(64)
                 .expireAfterAccess(4, TimeUnit.HOURS)
                 .build(loader);
+        setComponent();
     }
 
     public Object getComByName(String name)
             throws ClassServiceException {
-        LoggerUtil.info(logger, "gen class: " + name);
-
-        // 完成一些基本参数的初始化（此处主要是在组件中注入自己）
+        LoggerUtil.debug(logger, "gen class: " + name);
+        if(commonComponent.containsKey(name)){
+            return commonComponent.get(name);
+        }
         Object obj = null;
         try {
             Class<?> aClass = classCache.get(name);
@@ -62,5 +70,10 @@ public class ClassService {
         }
         // 经过分析此处不可能是null。
         return obj;
+    }
+    private void setComponent(){
+        commonComponent.put(HttpClientDownloader.class.getName(),new HttpClientDownloader());
+        commonComponent.put(SeleniumDownloader.class.getName(),new SeleniumDownloader());
+        commonComponent.put(QueueScheduler.class.getName(),new QueueScheduler());
     }
 }

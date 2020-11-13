@@ -11,7 +11,7 @@ import com.alan.databee.spider.pipeline.ConsolePipeline;
 import com.alan.databee.spider.pipeline.Pipeline;
 import com.alan.databee.spider.processor.PageProcessor;
 import com.alan.databee.spider.scheduler.Scheduler;
-import com.alan.databee.spider.service.Task;
+import com.alan.databee.service.Task;
 import com.alan.databee.spider.thread.CountableThreadPool;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;

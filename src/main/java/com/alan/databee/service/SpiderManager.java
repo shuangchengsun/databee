@@ -1,8 +1,10 @@
-package com.alan.databee.spider;
+package com.alan.databee.service;
 
 import com.alan.databee.common.util.log.LoggerUtil;
-import com.alan.databee.spider.service.Task;
-import com.alan.databee.spider.service.TaskService;
+import com.alan.databee.model.DebugResult;
+import com.alan.databee.service.Task;
+import com.alan.databee.service.TaskService;
+import com.alan.databee.spider.DataBee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,5 +51,22 @@ public class SpiderManager {
 
         // 日志格式：开始时间，结束时间，总任务，成功数量，失败数量，失败的任务名称。
         LoggerUtil.info(LOGGER, start, finish, tasks.size(), sum, tasks.size() - sum, stringBuilder.toString());
+    }
+
+    /**
+     * 在正式配置任务之前，做一个全流程的调试，
+     * @return
+     */
+    public DebugResult runDebugTask(){
+        return null;
+    }
+
+    /**
+     * 此处是调试一些组件，主要以PageProcessor，和Downloader为主，
+     * @return 测试结果。
+     */
+    public DebugResult componentDebug(){
+
+        return null;
     }
 }

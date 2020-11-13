@@ -1,6 +1,9 @@
-package com.alan.databee.spider.service;
+package com.alan.databee.service;
 
+import com.alan.databee.model.BusyReqModel;
+import com.alan.databee.model.DebugResult;
 import com.alan.databee.spider.model.SpiderTaskConfig;
+import com.alan.databee.spider.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,5 +30,15 @@ public class TaskService {
             priorityQueue.add(task);
         }
         return priorityQueue;
+    }
+
+    public Task genTask(){
+        return null;
+    }
+
+    public DebugResult submitTask(BusyReqModel model, User user) {
+        // 检查组件是否能够编译通过
+
+        return null;
     }
 }

@@ -14,4 +14,9 @@ public enum SpiderErrorEnum {
     SpiderErrorEnum(String msg) {
         this.msg = msg;
     }
+
+    @Override
+    public String toString() {
+        return "error info: "+msg;
+    }
 }
