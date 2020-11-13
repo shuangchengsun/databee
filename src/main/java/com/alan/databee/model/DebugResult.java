@@ -1,11 +1,19 @@
 package com.alan.databee.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DebugResult {
 
     /**
      * 结果，SUCCESS or FAIL
      */
-    private String Stat;
+    private int Stat;
+
+    /**
+     * 状态描述
+     */
+    private String msg;
 
     /**
      * 耗时
@@ -31,5 +39,71 @@ public class DebugResult {
      * 持久化状态，success or fail
      */
     private String pipelineStat;
+
+    private Map<String,String> extMsg = new HashMap<>();
+
+
+    public int getStat() {
+        return Stat;
+    }
+
+    public void setStat(int stat) {
+        Stat = stat;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public int getPageCount() {
+        return pageCount;
+    }
+
+    public void setPageCount(int pageCount) {
+        this.pageCount = pageCount;
+    }
+
+    public String getSeed() {
+        return seed;
+    }
+
+    public void setSeed(String seed) {
+        this.seed = seed;
+    }
+
+    public String getDownloadStat() {
+        return downloadStat;
+    }
+
+    public void setDownloadStat(String downloadStat) {
+        this.downloadStat = downloadStat;
+    }
+
+    public String getPipelineStat() {
+        return pipelineStat;
+    }
+
+    public void setPipelineStat(String pipelineStat) {
+        this.pipelineStat = pipelineStat;
+    }
+
+    public Map<String, String> getExtMsg() {
+        return extMsg;
+    }
+    public void addExtMsg(String key, String msg){
+        extMsg.put(key,msg);
+    }
 
 }

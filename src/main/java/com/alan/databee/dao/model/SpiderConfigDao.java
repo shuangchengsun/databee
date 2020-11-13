@@ -15,19 +15,19 @@ public class SpiderConfigDao {
 
     private String taskName;
 
-    private int creator;
+    private String creator;
 
     private Date gmtCreate;
 
     private Date gmtModify;
 
-    private int modifier;
+    private String modifier;
 
-    private int actionConfig;
+    private String componentConfig;
 
-    private int depth=1;
+    private int depth = 1;
 
-    private Date expire;
+    private Date expireTime;
 
     private String url;
 
@@ -59,14 +59,6 @@ public class SpiderConfigDao {
         this.taskName = taskName;
     }
 
-    public int getCreator() {
-        return creator;
-    }
-
-    public void setCreator(int creator) {
-        this.creator = creator;
-    }
-
     public Date getGmtCreate() {
         return gmtCreate;
     }
@@ -83,22 +75,6 @@ public class SpiderConfigDao {
         this.gmtModify = gmtModify;
     }
 
-    public int getModifier() {
-        return modifier;
-    }
-
-    public void setModifier(int modifier) {
-        this.modifier = modifier;
-    }
-
-    public int getActionConfig() {
-        return actionConfig;
-    }
-
-    public void setActionConfig(int actionConfig) {
-        this.actionConfig = actionConfig;
-    }
-
     public int getDepth() {
         return depth;
     }
@@ -107,12 +83,12 @@ public class SpiderConfigDao {
         this.depth = depth;
     }
 
-    public Date getExpire() {
-        return expire;
+    public Date getExpireTime() {
+        return expireTime;
     }
 
-    public void setExpire(Date expire) {
-        this.expire = expire;
+    public void setExpireTime(Date expireTime) {
+        this.expireTime = expireTime;
     }
 
     public String getUrl() {
@@ -137,5 +113,29 @@ public class SpiderConfigDao {
 
     public void setThread(int thread) {
         this.thread = thread;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public String getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(String modifier) {
+        this.modifier = modifier;
+    }
+
+    public String getComponentConfig() {
+        return componentConfig;
+    }
+
+    public void setComponentConfig(String componentConfig) {
+        this.componentConfig = componentConfig;
     }
 }

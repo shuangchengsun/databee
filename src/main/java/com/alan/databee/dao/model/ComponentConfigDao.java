@@ -19,7 +19,9 @@ public class ComponentConfigDao {
 
     private String pageModel;
 
-    private String Schedule;
+    private String schedule;
+
+    private String name;
 
     public int getId() {
         return id;
@@ -70,10 +72,18 @@ public class ComponentConfigDao {
     }
 
     public String getSchedule() {
-        return Schedule;
+        return schedule;
     }
 
     public void setSchedule(String schedule) {
-        Schedule = schedule;
+        this.schedule = schedule;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

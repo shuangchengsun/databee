@@ -15,4 +15,7 @@ public interface UserMapper {
 
     @Select("SELECT id,user_name,biz_line FROM user WHERE id=#{id}")
     UserDao getById(int id);
+
+    @Select("SELECT id,user_name,biz_line FROM user WHERE user_name=#{name}")
+    UserDao getByName(String name);
 }

@@ -50,6 +50,8 @@ public class BusyReqModel {
      */
     private Map<String, Object> param;
 
+    private String TaskName;
+
     public int getBusyCode() {
         return busyCode;
     }
@@ -120,5 +122,13 @@ public class BusyReqModel {
 
     public void setParam(Map<String, Object> param) {
         this.param = param;
+    }
+
+    public String getTaskName() {
+        return TaskName;
+    }
+
+    public void setTaskName(String taskName) {
+        TaskName = taskName;
     }
 }

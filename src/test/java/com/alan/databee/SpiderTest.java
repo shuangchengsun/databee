@@ -19,11 +19,12 @@ public class SpiderTest {
 
     @Test
     public void spiderManagerTest(){
-        manager.runDailyTask();
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        manager.runDailyTask();
+//        try {
+//            Thread.sleep(20000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        System.out.println(System.currentTimeMillis());
     }
 }

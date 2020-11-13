@@ -2,9 +2,11 @@ package com.alan.databee.service;
 
 import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.dao.mapper.ComponentConfigMapper;
+import com.alan.databee.dao.mapper.ComponentMapper;
 import com.alan.databee.dao.mapper.SpiderConfigMapper;
 import com.alan.databee.dao.mapper.UserMapper;
 import com.alan.databee.dao.model.ComponentConfigDao;
+import com.alan.databee.dao.model.ComponentDao;
 import com.alan.databee.dao.model.SpiderConfigDao;
 import com.alan.databee.dao.model.UserDao;
 import com.alan.databee.spider.downloader.Downloader;
@@ -45,6 +47,9 @@ public class TaskConfigService {
     @Autowired(required = false)
     private UserMapper userMapper;
 
+    @Autowired(required = false)
+    private ComponentMapper componentMapper;
+
     @Autowired
     private ClassService classService;
 
@@ -57,27 +62,27 @@ public class TaskConfigService {
         for (SpiderConfigDao spiderConfigDao : daily) {
             SpiderTaskConfig taskConfig = new SpiderTaskConfig();
 
-            int creator = spiderConfigDao.getCreator();
-            UserDao userdao = userMapper.getById(creator);
+            String creator = spiderConfigDao.getCreator();
+            UserDao userdao = userMapper.getByName(creator);
             taskConfig.setCreator(userDaoToUser(userdao));
 
             taskConfig.setDepth(spiderConfigDao.getDepth());
 
-            taskConfig.setExpire(spiderConfigDao.getExpire());
+            taskConfig.setExpire(spiderConfigDao.getExpireTime());
 
             taskConfig.setGmtCreate(spiderConfigDao.getGmtCreate());
 
             taskConfig.setGmtModify(spiderConfigDao.getGmtModify());
 
-            int modifierId = spiderConfigDao.getModifier();
-            UserDao modifierDao = userMapper.getById(modifierId);
+            String modifierName = spiderConfigDao.getModifier();
+            UserDao modifierDao = userMapper.getByName(modifierName);
             taskConfig.setModifier(userDaoToUser(modifierDao));
 
             taskConfig.setPriority(spiderConfigDao.getPriority());
 
 
-            int actionConfigId = spiderConfigDao.getActionConfig();
-            ComponentConfigDao componentConfigDao = componentConfigMapper.getById(actionConfigId);
+            String componentConfigName = spiderConfigDao.getComponentConfig();
+            ComponentConfigDao componentConfigDao = componentConfigMapper.getByName(componentConfigName);
 
             try {
                 taskConfig.setSpiderComponentConfig(componentConfigCreator(componentConfigDao));
@@ -126,12 +131,12 @@ public class TaskConfigService {
         } else {
             componentConfig.setDownloader(new HttpClientDownloader());
         }
-        // pageModel
-        String pageModelName = componentConfigDao.getPageModel();
-        if (pageModelName != null) {
-            PageModel page = (PageModel) classService.getComByName(pageModelName);
-            componentConfig.setPageModel(page);
-        }
+//        // pageModel
+//        String pageModelName = componentConfigDao.getPageModel();
+//        if (pageModelName != null) {
+//            PageModel page = (PageModel) classService.getComByName(pageModelName);
+//            componentConfig.setPageModel(page);
+//        }
         // pageProcessor
         String parserName = componentConfigDao.getPageProcessor();
         if (parserName != null && parserName.length() > 0) {
@@ -155,5 +160,16 @@ public class TaskConfigService {
         return componentConfig;
     }
 
+    public void saveSpiderConfig(SpiderConfigDao configDao){
+        spiderConfigMapper.saveConfig(configDao);
+    }
+
+    public void saveComponentConfig(ComponentConfigDao componentConfigDao){
+        componentConfigMapper.saveConfig(componentConfigDao);
+    }
+
+    public void saveComponent(ComponentDao componentDao){
+        componentMapper.saveComponent(componentDao);
+    }
 
 }
