@@ -1,6 +1,7 @@
 package com.alan.databee.service;
 
 import com.alan.databee.common.util.log.LoggerUtil;
+import com.alan.databee.model.BusyReqModel;
 import com.alan.databee.model.DebugResult;
 import com.alan.databee.service.Task;
 import com.alan.databee.service.TaskService;
@@ -27,6 +28,8 @@ public class SpiderManager {
     TaskService taskService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger("taskLogger");
+
+    private DataBee dataBee = new DataBee().setSync(false);
 
     /**
      * 运行日常的任务。采用Spring的定时调度完成。
@@ -57,7 +60,10 @@ public class SpiderManager {
      * 在正式配置任务之前，做一个全流程的调试，
      * @return
      */
-    public DebugResult runDebugTask(){
+    public DebugResult runDebugTask(BusyReqModel model){
+        Task task= taskService.genTask(model);
+
+
         return null;
     }
 

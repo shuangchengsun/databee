@@ -50,7 +50,7 @@ public class TaskService {
         return priorityQueue;
     }
 
-    public Task genTask() {
+    public Task genTask(BusyReqModel model) {
         return null;
     }
 
@@ -87,9 +87,17 @@ public class TaskService {
         }
         List<String> pipelines = model.getPipeline();
         for (String pipeline : pipelines) {
-            result = checkComCompile(pipeline);
-            if (result != null && result.getStat() != SUCCESS_STAT)
-                return result;
+            if(pipeline.length()>32) {
+                result = checkComCompile(pipeline);
+                if (result != null && result.getStat() != SUCCESS_STAT)
+                    return result;
+            }else {
+                if(!CommonConfig.isContainCom(pipeline)){
+                    result = buildError(ResultEnum.Component_Undefined);
+                    result.addExtMsg("ErrMsg", "使用通用的downloader时名称错误，组件名：" + pipeline);
+                    return result;
+                }
+            }
         }
         String scheduler = model.getScheduler();
         result = checkComCompile(scheduler);
@@ -228,6 +236,9 @@ public class TaskService {
     }
 
     private DebugResult checkComCompile(String com) {
+        if(com == null || com.length()==0){
+            return null;
+        }
         DebugResult result = null;
         try {
             String comName = getComName(com);
@@ -262,4 +273,5 @@ public class TaskService {
         }
         return configDao;
     }
+
 }

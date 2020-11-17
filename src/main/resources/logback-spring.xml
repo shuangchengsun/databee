@@ -151,6 +151,21 @@
         <appender-ref ref="taskAppender"/>
     </logger>
 
+    <appender name="controllerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/controller.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>controller.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="controllerLogger" level="info" >
+        <appender-ref ref="controllerAppender"/>
+    </logger>
 
 
 
