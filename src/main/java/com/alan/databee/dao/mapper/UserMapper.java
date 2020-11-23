@@ -1,6 +1,8 @@
 package com.alan.databee.dao.mapper;
 
 import com.alan.databee.dao.model.UserDao;
+import com.alan.databee.model.User;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -18,4 +20,10 @@ public interface UserMapper {
 
     @Select("SELECT id,user_name,biz_line FROM user WHERE user_name=#{name}")
     UserDao getByName(String name);
+
+    @Select(value = "SELECT id,user_name,biz_line FROM user WHERE user_name=#{name} AND password=#{password}")
+    UserDao getByNameAndPassword(String name, String password);
+
+    @Insert(value = "INSERT INTO user (user_name, biz_line, password) VALUES (#{user.userName}, #{user.bizLine}, #{user.password})")
+    void insertUser(User user);
 }

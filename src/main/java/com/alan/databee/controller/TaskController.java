@@ -7,7 +7,7 @@ import com.alan.databee.model.DebugResult;
 import com.alan.databee.model.ResultEnum;
 import com.alan.databee.service.SpiderManager;
 import com.alan.databee.service.TaskService;
-import com.alan.databee.spider.model.User;
+import com.alan.databee.model.User;
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

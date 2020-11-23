@@ -1,5 +1,7 @@
 package com.alan.databee.spider.model;
 
+import com.alan.databee.model.User;
+
 import java.util.Date;
 
 /**
