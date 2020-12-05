@@ -15,7 +15,7 @@ public class RequestData implements Serializable {
      * 0x05 任务提交
      * 0x06 结果获取
      */
-    private int BusCode;
+    private int busCode;
 
     /**
      * 当前的实践
@@ -38,13 +38,12 @@ public class RequestData implements Serializable {
     private Map<Object, Object> extMsg;
 
 
-
     public int getBusCode() {
-        return BusCode;
+        return busCode;
     }
 
     public void setBusCode(int busCode) {
-        BusCode = busCode;
+        this.busCode = busCode;
     }
 
     public Date getTime() {

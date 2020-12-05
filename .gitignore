@@ -33,3 +33,4 @@ build/
 .vscode/
 
 !/src/main/java/com/alan/databee/common/util/log
+*.mp4

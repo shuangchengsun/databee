@@ -6,6 +6,7 @@ import com.alan.databee.spider.utils.Experimental;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @ClassName Request
@@ -14,7 +15,7 @@ import java.util.Map;
  * @Version -V1.0
  */
 public class
-Request implements Serializable {
+Request implements Serializable ,Comparable<Request>{
 
     private static final long serialVersionUID = 2062192774891352043L;
 
@@ -29,7 +30,7 @@ Request implements Serializable {
     /**
      * Store additional information in extras.
      */
-    private Map<String, Object> extras;
+    private Map<String, String> extras;
 
     /**
      * cookies for current url, if not set use Site's cookies
@@ -38,12 +39,7 @@ Request implements Serializable {
 
     private Map<String, String> headers = new HashMap<String, String>();
 
-    /**
-     * Priority of the request.<br>
-     * The bigger will be processed earlier. <br>
-     *
-     * @see us.codecraft.webmagic.scheduler.PriorityScheduler
-     */
+
     private long priority;
 
     /**
@@ -55,25 +51,22 @@ Request implements Serializable {
 
     private int retryTimes = 1;
 
-    public Request() {
-    }
 
     public Request(String url) {
         this.url = url;
+        this.method = "GET";
+    }
+
+    public Request(String url, String method) {
+        this.url = url;
+        this.method = method;
     }
 
     public long getPriority() {
         return priority;
     }
 
-    /**
-     * Set the priority of request for sorting.<br>
-     * Need a scheduler supporting priority.<br>
-     *
-     * @param priority priority
-     * @return this
-     * @see us.codecraft.webmagic.scheduler.PriorityScheduler
-     */
+
     @Experimental
     public Request setPriority(long priority) {
         this.priority = priority;
@@ -88,9 +81,9 @@ Request implements Serializable {
         return (T) extras.get(key);
     }
 
-    public <T> Request putExtra(String key, T value) {
+    public <T> Request putExtra(String key, String value) {
         if (extras == null) {
-            extras = new HashMap<String, Object>();
+            extras = new HashMap<String, String>();
         }
         extras.put(key, value);
         return this;
@@ -100,11 +93,11 @@ Request implements Serializable {
         return url;
     }
 
-    public Map<String, Object> getExtras() {
+    public Map<String, String> getExtras() {
         return extras;
     }
 
-    public Request setExtras(Map<String, Object> extras) {
+    public Request setExtras(Map<String, String> extras) {
         this.extras = extras;
         return this;
     }
@@ -114,13 +107,7 @@ Request implements Serializable {
         return this;
     }
 
-    /**
-     * The http method of the request. Get for default.
-     *
-     * @return httpMethod
-     * @see us.codecraft.webmagic.utils.HttpConstant.Method
-     * @since 0.5.0
-     */
+
     public String getMethod() {
         return method;
     }
@@ -128,24 +115,6 @@ Request implements Serializable {
     public Request setMethod(String method) {
         this.method = method;
         return this;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = url != null ? url.hashCode() : 0;
-        result = 31 * result + (method != null ? method.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Request request = (Request) o;
-
-        if (url != null ? !url.equals(request.url) : request.url != null) return false;
-        return method != null ? method.equals(request.method) : request.method == null;
     }
 
     public Request addCookie(String name, String value) {
@@ -200,6 +169,11 @@ Request implements Serializable {
         this.retryTimes = retryTimes;
     }
 
+    public Request setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Request{" +
@@ -212,4 +186,27 @@ Request implements Serializable {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Request request = (Request) o;
+        return url.equals(request.url) &&
+                method.equals(request.method);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(url, method);
+    }
+
+    @Override
+    public int compareTo(Request o) {
+        if(this.priority == o.priority){
+            return this.hashCode()-o.hashCode();
+        }else {
+            return (int) (this.priority-o.priority);
+        }
+    }
 }
+

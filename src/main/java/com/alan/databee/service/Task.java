@@ -2,7 +2,6 @@ package com.alan.databee.service;
 
 import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.spider.Site;
-import com.alan.databee.spider.exception.SpiderTaskException;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
 import com.alan.databee.spider.pipeline.Pipeline;
@@ -30,13 +29,21 @@ public class Task implements Comparable<Task> {
         SpiderComponentConfig componentConfig = taskConfig.getSpiderComponentConfig();
         configCheck(componentConfig);
         site = new Site()
-                .addSeed(taskConfig.getUrl())
+                .setSeed(taskConfig.getUrl())
+                .setSeedRequest(taskConfig.getSeedRequest())
                 .setDownloader(componentConfig.getDownloader())
+                .setTaskName(taskName)
                 .setScheduler(componentConfig.getScheduler());
         for (Pipeline pipeline : componentConfig.getPipelines()) {
             site.pipelineAddLast(pipeline);
         }
-        site.processorAddLast(componentConfig.getPageProcessor());
+        site.processorAddLast(componentConfig.getPageProcessor().getClass().getName(),componentConfig.getPageProcessor());
+    }
+
+    public Task(Site site, String taskName,int priority) {
+        this.site = site;
+        this.taskName = taskName;
+        this.priority = priority;
     }
 
     private void configCheck(SpiderComponentConfig componentConfig) {

@@ -62,4 +62,14 @@ public class ResponseData {
     public void setExtMsg(Map<Object, Object> extMsg) {
         this.extMsg = extMsg;
     }
+
+    @Override
+    public String toString() {
+        return "ResponseData{" +
+                "BusCode=" + BusCode +
+                ", isSuccess=" + isSuccess +
+                ", msg='" + msg + '\'' +
+                ", extMsg=" + extMsg +
+                '}';
+    }
 }

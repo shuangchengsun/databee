@@ -125,6 +125,13 @@ public class Site {
      */
     private String seed;
 
+    private Request seedRequest;
+
+    /**
+     * 主域
+     */
+    private String Domain;
+
 
     static {
         DEFAULT_STATUS_CODE_SET.add(HttpConstant.StatusCode.CODE_200);
@@ -404,10 +411,13 @@ public class Site {
         return this;
     }
 
-    public Site setScheduler(Scheduler scheduler) {
+    public Site
+    setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
-        if (seed != null) {
-            scheduler.push(new Request(seed), null);
+        if(seed == null || seedRequest == null){
+            throw new IllegalArgumentException("没有初始化seed或seedRequest");
+        }else{
+            this.scheduler.push(seedRequest,null);
         }
         return this;
     }
@@ -424,16 +434,6 @@ public class Site {
         return pipelines;
     }
 
-    public Site addSeed(String url) {
-        if (scheduler == null) {
-            this.seed = url;
-        } else {
-            this.seed = url;
-            scheduler.push(new Request(url), null);
-        }
-        return this;
-    }
-
     public void pageCountAdd(int num){
         this.pageCount += num;
     }
@@ -446,16 +446,18 @@ public class Site {
         return taskName;
     }
 
-    public void setTaskName(String taskName) {
+    public Site setTaskName(String taskName) {
         this.taskName = taskName;
+        return this;
     }
 
     public String getSeed() {
         return seed;
     }
 
-    public void setSeed(String seed) {
+    public Site setSeed(String seed) {
         this.seed = seed;
+        return this;
     }
 
     @Override
@@ -507,5 +509,18 @@ public class Site {
         public int hashCode() {
             return Objects.hash(name);
         }
+    }
+
+    public Request getSeedRequest() {
+        return seedRequest;
+    }
+
+    public Site setSeedRequest(Request seedRequest) {
+        if(this.scheduler == null) {
+            this.seedRequest = seedRequest;
+        }else {
+            this.scheduler.push(seedRequest,null);
+        }
+        return this;
     }
 }

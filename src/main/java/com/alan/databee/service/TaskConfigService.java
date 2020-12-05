@@ -9,15 +9,19 @@ import com.alan.databee.dao.model.ComponentConfigDao;
 import com.alan.databee.dao.model.ComponentDao;
 import com.alan.databee.dao.model.SpiderConfigDao;
 import com.alan.databee.dao.model.UserDao;
+import com.alan.databee.model.RequestConfig;
 import com.alan.databee.spider.downloader.Downloader;
 import com.alan.databee.spider.downloader.HttpClientDownloader;
 import com.alan.databee.spider.exception.ClassServiceException;
+import com.alan.databee.spider.model.Request;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
 import com.alan.databee.model.User;
 import com.alan.databee.spider.pipeline.ConsolePipeline;
 import com.alan.databee.spider.pipeline.Pipeline;
 import com.alan.databee.spider.processor.PageProcessor;
+import com.alan.databee.spider.scheduler.Scheduler;
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +88,15 @@ public class TaskConfigService {
             ComponentConfigDao componentConfigDao = componentConfigMapper.getByName(componentConfigName);
 
             try {
+                RequestConfig requestConfig = JSON.parseObject(spiderConfigDao.getSeedRequestConfig(), RequestConfig.class);
+                Request request = new Request(requestConfig.getUrl());
+                request.setPriority(requestConfig.getPriority());
+                request.setMethod(requestConfig.getMethod());
+                request.setHeaders(requestConfig.getHeaders());
+                request.setExtras(requestConfig.getExtras());
+                taskConfig.setSeedRequest(request);
+
+
                 taskConfig.setSpiderComponentConfig(componentConfigCreator(componentConfigDao));
 
                 taskConfig.setTaskName(spiderConfigDao.getTaskName());
@@ -100,7 +113,7 @@ public class TaskConfigService {
                         componentConfigDao.getPipelines());
             } catch (ClassServiceException e) {
                 // 错误日志
-                LoggerUtil.error(LOGGER, taskConfig.getTaskName(), "装配组件是发生错误", componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
+               LoggerUtil.error(LOGGER, taskConfig.getTaskName(), "装配组件是发生错误", componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
                         componentConfigDao.getPipelines(), e);
             }
             // 此处不管taskConfig是否合法，都加载到总任务中
@@ -130,12 +143,12 @@ public class TaskConfigService {
         } else {
             componentConfig.setDownloader(new HttpClientDownloader());
         }
-//        // pageModel
-//        String pageModelName = componentConfigDao.getPageModel();
-//        if (pageModelName != null) {
-//            PageModel page = (PageModel) classService.getComByName(pageModelName);
-//            componentConfig.setPageModel(page);
-//        }
+        // pageModel
+        String scheduleName = componentConfigDao.getSchedule();
+        if (scheduleName != null) {
+            Scheduler scheduler = (Scheduler) classService.getComByName(scheduleName);
+            componentConfig.setScheduler(scheduler);
+        }
         // pageProcessor
         String parserName = componentConfigDao.getPageProcessor();
         if (parserName != null && parserName.length() > 0) {

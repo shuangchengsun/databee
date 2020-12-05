@@ -6,9 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,6 +122,32 @@ public class UrlUtils {
             }
         }
         return null;
+    }
+
+    public static Map<String,String> parseParams(String url){
+        Map<String,String> map = new HashMap<>();
+        String[] split = url.split("\\?");
+        map.put("main",split[0]);
+        String[] split1 = split[1].split("&");
+        for(String s:split1){
+            String[] split2 = s.split("=");
+            map.put(split2[0],split2[1]);
+        }
+        return map;
+    }
+    public static String buildUrl(String base,Map<String,String> params){
+        if(params == null){
+            return fixIllegalCharacterInUrl(base);
+        }else {
+            StringBuilder builder = new StringBuilder();
+            builder.append(base).append("?");
+            for(Map.Entry<String,String> entry:params.entrySet()){
+                builder.append(entry.getKey()).append("=").append(entry.getValue());
+                builder.append("&");
+            }
+            String s = builder.toString();
+            return s.substring(0,s.length()-1);
+        }
     }
 
 }

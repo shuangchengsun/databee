@@ -12,10 +12,7 @@ import com.alan.databee.spider.script.ScriptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,9 +33,9 @@ public class TaskService {
     private static final int SUBMIT_NEW = 0x01;
     private static final int SUCCESS_STAT = 0x00;
 
-    public PriorityQueue<Task> AssemblyTask() {
+    public Queue<Task> AssemblyTask() {
         List<SpiderTaskConfig> configs = configService.getAllTask();
-        PriorityQueue<Task> priorityQueue = new PriorityQueue<>();
+        Queue<Task> priorityQueue = new LinkedList<>();
         for (SpiderTaskConfig config : configs) {
             Task task = new Task(config);
             priorityQueue.add(task);

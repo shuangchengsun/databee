@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>index</title>
-    <script src="/static/main.js"></script>
+    <script type="text/javascript" src="/static/main.js"></script>
 </head>
 <body>
 <div class="app" id="app">
     <!-- built files will be auto injected -->
+    {{message}}
 </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script>
+    const app = new Vue({
+        el: 'app',
+        message: "Hello Vue"
+    })
+</script>
 
 </html>

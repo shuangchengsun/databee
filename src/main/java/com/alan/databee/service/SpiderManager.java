@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * @ClassName SpiderManager
@@ -39,7 +40,7 @@ public class SpiderManager {
         Date start = new Date();
         int sum = 0;
         // 其中包括一些组装失败的任务，或者组件非法的任务。此处得到的任务数和数据库中配置的数量完全一致
-        PriorityQueue<Task> tasks = taskService.AssemblyTask();
+        Queue<Task> tasks = taskService.AssemblyTask();
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("失败的任务：");
         DataBee dataBee = new DataBee().setSync(true);

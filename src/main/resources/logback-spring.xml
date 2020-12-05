@@ -20,7 +20,7 @@
         <append>true</append>
         <file>${logPath}/common-error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>common-error.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <fileNamePattern>common-error.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -37,7 +37,7 @@
         <append>true</append>
         <file>${logPath}/common.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>common.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <fileNamePattern>common.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -59,7 +59,7 @@
         <append>true</append>
         <file>${logPath}/taskConfig.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>taskConfig.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <fileNamePattern>taskConfig.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -76,7 +76,7 @@
         <append>true</append>
         <file>${logPath}/pageProcessor.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>pageProcessor.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <fileNamePattern>pageProcessor.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -88,7 +88,7 @@
             <maxLevel>warn</maxLevel>
         </filter>
     </appender>
-    <logger name="PageProcessorLogger" level="info" additivity="false">
+    <logger name="PageProcessorLogger" level="info">
         <appender-ref ref="PageProcessorAppender"/>
     </logger>
 
@@ -97,7 +97,7 @@
         <append>true</append>
         <file>${logPath}/script.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>script.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <fileNamePattern>script.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -118,7 +118,7 @@
         <append>true</append>
         <file>${logPath}/taskRunner.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>taskRunner.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <fileNamePattern>taskRunner.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -126,7 +126,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <logger name="taskRunnerLogger" level="info" additivity="false">
+    <logger name="taskRunnerLogger" level="info">
         <appender-ref ref="taskRunnerAppender"/>
     </logger>
 
@@ -155,7 +155,7 @@
         <append>true</append>
         <file>${logPath}/controller.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>controller.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <fileNamePattern>controller.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -165,6 +165,45 @@
     </appender>
     <logger name="controllerLogger" level="info" >
         <appender-ref ref="controllerAppender"/>
+    </logger>
+
+    <logger name="debugLogger" level="debug" additivity="false">
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
+
+    <!--通过日志固化数据-->
+    <appender name="LogePipelineAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/Content/content.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>content.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="LogPipelineLogger" level="info">
+        <appender-ref ref="LogePipelineAppender"/>
+    </logger>
+
+    <!--通过日志固化数据-->
+    <appender name="FxyAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/Content/Fxy_content.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>Fxy_content.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="FxyLogger" level="debug">
+        <appender-ref ref="FxyAppender"/>
     </logger>
 
 

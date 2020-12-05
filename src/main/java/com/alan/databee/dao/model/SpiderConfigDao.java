@@ -35,6 +35,8 @@ public class SpiderConfigDao {
 
     private int thread;
 
+    private String seedRequestConfig;
+
     public int getId() {
         return id;
     }
@@ -137,5 +139,13 @@ public class SpiderConfigDao {
 
     public void setComponentConfig(String componentConfig) {
         this.componentConfig = componentConfig;
+    }
+
+    public String getSeedRequestConfig() {
+        return seedRequestConfig;
+    }
+
+    public void setSeedRequestConfig(String seedRequestConfig) {
+        this.seedRequestConfig = seedRequestConfig;
     }
 }

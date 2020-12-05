@@ -122,6 +122,7 @@ public class DataBee {
                     pipeline.process(page.getResultItems(), null);
                 }
             }
+//            site.pageCountAdd(1);
         } else {
             // 错误日志格式： 状态，任务名称，页面url，重试次数，失败原因，状态码
             LoggerUtil.error(LOGGER, "failed", site.getTaskName(), page.getUrl(), 0, "服务器相应的状态码不被接受", page.getStatusCode());
@@ -267,7 +268,7 @@ public class DataBee {
     }
 
     private boolean componentInit(Site site) {
-        if (site.getPageProcessors() != null) {
+        if (site.getPageProcessors() == null) {
             return false;
         }
         if (site.getDownloader() == null) {

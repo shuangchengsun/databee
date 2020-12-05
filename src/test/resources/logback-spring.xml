@@ -4,7 +4,7 @@
                debug="false" scan="true" scanPeriod="300 seconds"
                xsi:schemaLocation="http://www.padual.com/java/logback.xsd">
 
-    <property name="logPath" value="/Users/sunshuangcheng/source/java/databee"/>
+    <property name="logPath" value="/Users/sunshuangcheng/source/java/databee/logs"/>
 
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -12,6 +12,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
+
     <root level="info">
         <appender-ref ref="consoleAppender"/>
     </root>
@@ -28,7 +29,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <logger name="DaoLogger" level="warn">
+    <logger name="DaoLogger" level="info">
         <appender-ref ref="DaoAppender"/>
     </logger>
 
@@ -44,8 +45,24 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <logger name="PageProcessorLogger" level="warn" additivity="false">
+    <logger name="PageProcessorLogger" level="info">
         <appender-ref ref="PageProcessorAppender"/>
+    </logger>
+
+    <appender name="LogePipelineAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/content.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>content.log.%d{yyyy-MM-dd_HH:mm:ss}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <logger name="LogePipelineLogger" level="info">
+        <appender-ref ref="LogePipelineAppender"/>
     </logger>
 
 </configuration>

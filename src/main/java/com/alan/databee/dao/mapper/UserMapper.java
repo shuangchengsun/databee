@@ -24,6 +24,6 @@ public interface UserMapper {
     @Select(value = "SELECT id,user_name,biz_line FROM user WHERE user_name=#{name} AND password=#{password}")
     UserDao getByNameAndPassword(String name, String password);
 
-    @Insert(value = "INSERT INTO user (user_name, biz_line, password) VALUES (#{user.userName}, #{user.bizLine}, #{user.password})")
-    void insertUser(User user);
+    @Insert(value = "INSERT INTO user (user_name, biz_line, password) VALUES (#{userName}, #{bizLine}, #{password})")
+    void insertUser(UserDao user);
 }

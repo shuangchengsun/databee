@@ -2,22 +2,31 @@ package com.alan.databee.service;
 
 import com.alan.databee.common.cache.ComLoader;
 import com.alan.databee.common.util.log.LoggerUtil;
+import com.alan.databee.dao.mapper.ComponentMapper;
 import com.alan.databee.spider.downloader.HttpClientDownloader;
 import com.alan.databee.spider.downloader.SeleniumDownloader;
 import com.alan.databee.spider.exception.ClassServiceException;
 import com.alan.databee.spider.exception.SpiderErrorEnum;
+import com.alan.databee.spider.pipeline.ConsolePipeline;
+import com.alan.databee.spider.pipeline.LogPipeline;
+import com.alan.databee.spider.scheduler.PriorityScheduler;
 import com.alan.databee.spider.scheduler.QueueScheduler;
+import com.alan.databee.spider.script.ScriptService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -25,14 +34,27 @@ import java.util.concurrent.TimeUnit;
  * 该服务掌管着class服务，即其他的类通过此服务获取class文件，和class的实例
  */
 @Service
-public class ClassService {
+public class ClassService implements InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger("scriptAppender");
 
     private LoadingCache<String, Class<?>> classCache;
-    private Map<String,Object> commonComponent = new HashMap<>();
+    private Map<String,Object> commonComponent = new HashMap();
+
+    @Autowired
+    ComLoader comLoader;
+
+    @Autowired(required = false)
+    private ComponentMapper componentMapper;
+
+    @Autowired
+    private ScriptService scriptService;
 
     public ClassService() {
-        CacheLoader<String, Class<?>> loader = new ComLoader();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        CacheLoader<String, Class<?>> loader = comLoader;
         classCache = CacheBuilder.newBuilder().maximumSize(64)
                 .expireAfterAccess(4, TimeUnit.HOURS)
                 .build(loader);
@@ -40,13 +62,15 @@ public class ClassService {
     }
 
     public Object getComByName(String name)
-            throws ClassServiceException {
-        LoggerUtil.debug(logger, "gen class: " + name);
-        if(commonComponent.containsKey(name)){
-            return commonComponent.get(name);
-        }
+            throws ClassServiceException{
         Object obj = null;
+        LoggerUtil.info(logger, "gen class: " + name);
         try {
+            if (commonComponent.containsKey(name)) {
+                return commonComponent.get(name);
+            }
+
+
             Class<?> aClass = classCache.get(name);
             obj = aClass.newInstance();
             Method method = aClass.getMethod("setClassService", ClassService.class);
@@ -71,9 +95,17 @@ public class ClassService {
         // 经过分析此处不可能是null。
         return obj;
     }
-    private void setComponent(){
+    private void setComponent() {
+//        commonComponent.add(HttpClientDownloader.class.getName());
+//        commonComponent.add(SeleniumDownloader.class.getName());
+        classCache.put(QueueScheduler.class.getName(),QueueScheduler.class);
+//        commonComponent.add(LogPipeline.class.getName());
+        classCache.put(PriorityScheduler.class.getName(),PriorityScheduler.class);
+//        commonComponent.add(ConsolePipeline.class.getName());
         commonComponent.put(HttpClientDownloader.class.getName(),new HttpClientDownloader());
         commonComponent.put(SeleniumDownloader.class.getName(),new SeleniumDownloader());
-        commonComponent.put(QueueScheduler.class.getName(),new QueueScheduler());
+        commonComponent.put(LogPipeline.class.getName(),new LogPipeline());
+        commonComponent.put(ConsolePipeline.class.getName(),new ConsolePipeline());
+
     }
 }

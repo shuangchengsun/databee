@@ -8,17 +8,28 @@ import com.alan.databee.spider.proxy.ProxyProvider;
 import com.alan.databee.spider.selector.PlainText;
 import com.alan.databee.spider.utils.CharsetUtils;
 import com.alan.databee.spider.utils.HttpClientUtils;
+import com.alan.databee.spider.utils.HttpConstant;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -76,10 +87,14 @@ public class HttpClientDownloader extends AbstractDownloader {
         CloseableHttpResponse httpResponse = null;
         CloseableHttpClient httpClient = getHttpClient(site);
         Proxy proxy = proxyProvider != null ? proxyProvider.getProxy(site) : null;
+
         HttpClientRequestContext requestContext = httpUriRequestConverter.convert(request, site, proxy);
+
         Page page = Page.fail();
         try {
-            httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());
+            HttpUriRequest httpRequest = requestGen(request, site);
+//            httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());
+            httpResponse = httpClient.execute(httpRequest);
             page = handleResponse(request, request.getCharset() != null ? request.getCharset() : site.getCharset(), httpResponse, site);
             onSuccess(request);
             logger.info("downloading page success {}", request.getUrl());
@@ -97,6 +112,31 @@ public class HttpClientDownloader extends AbstractDownloader {
                 proxyProvider.returnProxy(proxy, page, site);
             }
         }
+    }
+    protected HttpUriRequest requestGen(Request request,Site site) throws UnsupportedEncodingException {
+        String method = request.getMethod();
+        HttpUriRequest httpRequest = null;
+        if(method == null||method.equalsIgnoreCase(HttpConstant.Method.GET)){
+            httpRequest = new HttpGet(request.getUrl());
+            Map<String, String> headers = request.getHeaders();
+            for(Map.Entry<String,String> entry : headers.entrySet()){
+                httpRequest.setHeader(entry.getKey(), entry.getValue());
+            }
+        }else if(method.equalsIgnoreCase(HttpConstant.Method.POST)){
+            httpRequest = new HttpPost(request.getUrl());
+            HttpPost post = (HttpPost) httpRequest;
+            Map<String, String> headers = request.getHeaders();
+            for(Map.Entry<String,String> entry : headers.entrySet()){
+                httpRequest.setHeader(entry.getKey(), entry.getValue());
+            }
+            Map<String, String> extras = request.getExtras();
+            List<NameValuePair> params = new LinkedList<>();
+            for(Map.Entry<String,String> entry:extras.entrySet()){
+                params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+            }
+            post.setEntity(new UrlEncodedFormEntity(params));
+        }
+        return httpRequest;
     }
 
     @Override

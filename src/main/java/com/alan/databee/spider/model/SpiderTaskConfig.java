@@ -72,6 +72,11 @@ public class SpiderTaskConfig {
      */
     private int thread;
 
+    /**
+     * 初始的请求
+     */
+    private Request seedRequest;
+
 
     public String getTaskName() {
         return taskName;
@@ -167,5 +172,13 @@ public class SpiderTaskConfig {
 
     public void setThread(int thread) {
         this.thread = thread;
+    }
+
+    public Request getSeedRequest() {
+        return seedRequest;
+    }
+
+    public void setSeedRequest(Request seedRequest) {
+        this.seedRequest = seedRequest;
     }
 }
