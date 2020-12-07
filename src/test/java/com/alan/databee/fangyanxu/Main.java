@@ -1,8 +1,7 @@
 package com.alan.databee.fangyanxu;
 
 
-import com.alan.databee.fangyanxu.pageProcessor.HBSeedProcessor;
-import com.alan.databee.fangyanxu.pageProcessor.JXSeedProcessor;
+import com.alan.databee.fangyanxu.pageProcessor.*;
 
 import com.alan.databee.model.RequestConfig;
 import com.alan.databee.service.SpiderManager;
@@ -31,7 +30,88 @@ public class Main {
     SpiderManager spiderManager;
     public static void main(String[] args) throws IOException {
 
-        HB();
+        SX();
+    }
+
+    public static void SX(){
+        Request request = new Request("http://www.shanxi.gov.cn/yw/sxyw/index.shtml");
+        request.setPriority(0)
+                .setMethod("GET");
+        RequestConfig config = new RequestConfig();
+        config.setMethod(request.getMethod());
+        config.setExtras(request.getExtras());
+        config.setHeaders(request.getHeaders());
+        config.setPriority((int) request.getPriority());
+        config.setUrl(request.getUrl());
+        String json = JSON.toJSONString(config);
+        System.out.println(json);
+
+        Site site = Site.me()
+                .setSeed("http://www.shanxi.gov.cn/yw/sxyw/")
+                .setSeedRequest(request)
+                .setScheduler(new PriorityScheduler())
+                .setTaskName("SX")
+                .setDownloader(new HttpClientDownloader())
+                .processorAddFirst("SXSeedProcessor",new SXSeedProcessor())
+                .pipelineAddFirst(new ConsolePipeline());
+        Task task = new Task(site,site.getTaskName(),1);
+        DataBee dataBee = new DataBee();
+        dataBee.setSync(true);
+        dataBee.run(task);
+    }
+    public static void FJ(){
+        Request request = new Request("http://www.fujian.gov.cn/was5/web/search?channelid=291575&templet=docs.jsp&sortfield=-DOCORDER&classsql=chnlid%3D41079&prepage=150&page=1");
+        request.setPriority(0)
+                .setMethod("GET");
+        RequestConfig config = new RequestConfig();
+        config.setMethod(request.getMethod());
+        config.setExtras(request.getExtras());
+        config.setHeaders(request.getHeaders());
+        config.setPriority((int) request.getPriority());
+        config.setUrl(request.getUrl());
+        String json = JSON.toJSONString(config);
+        System.out.println(json);
+
+        Site site = Site.me()
+                .setSeed("http://www.fujian.gov.cn/was5/web/search?channelid=291575&templet=docs.jsp&sortfield=-DOCORDER&classsql=chnlid%3D41079&prepage=150&page=1")
+                .setSeedRequest(request)
+                .setScheduler(new PriorityScheduler())
+                .setTaskName("FJ")
+                .setDownloader(new HttpClientDownloader())
+                .processorAddFirst("FJSeedProcessor",new FJSeedProcessor())
+                .pipelineAddFirst(new ConsolePipeline());
+        Task task = new Task(site,site.getTaskName(),0);
+        DataBee dataBee = new DataBee();
+        dataBee.setSync(true);
+        dataBee.run(task);
+    }
+
+    public static void HN(){
+        Request request = new Request("http://www.hunan.gov.cn/hnszf/hnyw/sy/hnyw1/gl_fgsjpx.html");
+        request.setMethod("GET")
+                .setPriority(0);
+        RequestConfig config = new RequestConfig();
+        config.setMethod(request.getMethod());
+        config.setExtras(request.getExtras());
+        config.setHeaders(request.getHeaders());
+        config.setPriority((int) request.getPriority());
+        config.setUrl(request.getUrl());
+        String json = JSON.toJSONString(config);
+        System.out.println(json);
+        Site site = Site.me()
+                .setSeed("http://www.hunan.gov.cn")
+                .setSeedRequest(request)
+                .setScheduler(new PriorityScheduler())
+                .setDownloader(new HttpClientDownloader())
+                .setTaskName("HN")
+                .processorAddFirst("HNSeedProcessor",new HNSeedProcessor())
+//                .pipelineAddFirst(new LogPipeline())
+                .pipelineAddFirst(new ConsolePipeline());
+        Task task = new Task(site,site.getTaskName(),0);
+        DataBee dataBee = new DataBee();
+        dataBee.setSync(true);
+        dataBee.run(task);
+
     }
     public static void HB(){
         Request request = new Request("http://www.hubei.gov.cn/zwgk/hbyw/hbywqb/index.shtml");
@@ -60,6 +140,36 @@ public class Main {
         dataBee.setSync(true);
         dataBee.run(task);
 
+    }
+
+    public static void AH(){
+        Request request = new Request("http://www.ah.gov.cn/content/column/6782061?pageIndex=1")
+                .setPriority(0)
+                .setMethod("GET");
+        Site site = Site.me()
+                .setSeed("http://www.ah.gov.cn/content/column/6782061?pageIndex=1")
+                .setSeedRequest(request)
+                .setScheduler(new PriorityScheduler())
+                .setDownloader(new HttpClientDownloader())
+                .setTaskName("AH")
+                .processorAddFirst("AHSeedProcessor",new AHSeedProcessor())
+                .pipelineAddFirst(new ConsolePipeline());
+
+
+        RequestConfig config = new RequestConfig();
+        config.setMethod(request.getMethod());
+        config.setUrl(request.getUrl());
+        config.setPriority((int) request.getPriority());
+        config.setExtras(request.getExtras());
+        config.setHeaders(request.getHeaders());
+        String json = JSON.toJSONString(config);
+        System.out.println(json);
+
+
+        Task task = new Task(site, site.getTaskName(), 1);
+        DataBee dataBee = new DataBee();
+        dataBee.setSync(true);
+        dataBee.run(task);
     }
 
     public static void JX(){

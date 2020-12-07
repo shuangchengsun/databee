@@ -1,0 +1,58 @@
+Manifest-Version: 1.0
+Main-Class: com.alan.databee.DatabeeApplication
+Class-Path: listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.j
+ ar mybatis-spring-2.0.5.jar httpclient-4.5.8.jar groovy-swing-2.5.13.ja
+ r jackson-annotations-2.11.3.jar netty-resolver-4.1.53.Final.jar groovy
+ -nio-2.5.13.jar picocli-4.3.2.jar spring-core-5.2.10.RELEASE.jar lettuc
+ e-core-5.3.5.RELEASE.jar snakeyaml-1.26.jar spring-boot-devtools-2.3.5.
+ RELEASE.jar groovy-ant-2.5.13.jar spring-web-5.2.10.RELEASE.jar xsoup-0
+ .3.1.jar spring-boot-starter-data-redis-2.3.5.RELEASE.jar logback-class
+ ic-1.2.3.jar tomcat-embed-websocket-9.0.39.jar groovy-console-2.5.13.ja
+ r groovy-macro-2.5.13.jar groovy-docgenerator-2.5.13.jar reactive-strea
+ ms-1.0.3.jar HikariCP-3.4.5.jar commons-exec-1.3.jar spring-boot-autoco
+ nfigure-2.3.5.RELEASE.jar spring-context-support-5.2.10.RELEASE.jar gro
+ ovy-groovydoc-2.5.13.jar spring-boot-starter-logging-2.3.5.RELEASE.jar 
+ xml-apis-1.0.b2.jar groovy-jmx-2.5.13.jar groovy-sql-2.5.13.jar spring-
+ data-commons-2.3.5.RELEASE.jar junit-jupiter-api-5.6.3.jar selenium-api
+ -3.141.59.jar netty-transport-4.1.53.Final.jar spring-aop-5.2.10.RELEAS
+ E.jar ant-antlr-1.9.15.jar mybatis-spring-boot-autoconfigure-2.1.3.jar 
+ okio-1.14.0.jar assertj-core-3.16.1.jar commons-collections-3.2.2.jar c
+ ommons-lang3-3.9.jar selenium-edge-driver-3.141.59.jar groovy-templates
+ -2.5.13.jar jackson-module-parameter-names-2.11.3.jar spring-oxm-5.2.10
+ .RELEASE.jar spring-beans-5.2.10.RELEASE.jar groovy-astbuilder-3.0.6.ja
+ r ant-junit-1.9.15.jar jsr305-3.0.2.jar netty-buffer-4.1.53.Final.jar a
+ nt-1.9.15.jar junit-platform-engine-1.6.3.jar jaxen-1.1.6.jar jakarta.a
+ nnotation-api-1.3.5.jar hamcrest-2.2.jar junit-platform-launcher-1.6.3.
+ jar spring-context-5.2.10.RELEASE.jar netty-handler-4.1.53.Final.jar lo
+ g4j-api-2.13.3.jar jackson-datatype-jdk8-2.11.3.jar spring-expression-5
+ .2.10.RELEASE.jar spring-data-redis-2.3.5.RELEASE.jar log4j-to-slf4j-2.
+ 13.3.jar jsoup-1.10.2.jar selenium-support-3.141.59.jar mysql-connector
+ -java-8.0.22.jar spring-boot-starter-tomcat-2.3.5.RELEASE.jar httpcore-
+ 4.4.11.jar selenium-ie-driver-3.141.59.jar byte-buddy-1.10.17.jar check
+ er-qual-3.5.0.jar junit-4.13.1.jar selenium-opera-driver-3.141.59.jar s
+ pring-boot-starter-json-2.3.5.RELEASE.jar spring-tx-5.2.10.RELEASE.jar 
+ groovy-groovysh-2.5.13.jar reactor-core-3.3.11.RELEASE.jar selenium-jav
+ a-3.141.59.jar groovy-datetime-2.5.13.jar junit-jupiter-engine-5.6.3.ja
+ r testng-6.13.1.jar selenium-remote-driver-3.141.59.jar mybatis-spring-
+ boot-starter-2.1.3.jar jul-to-slf4j-1.7.30.jar accessors-smart-1.2.jar 
+ groovy-json-2.5.13.jar selenium-firefox-driver-3.141.59.jar groovy-test
+ -2.5.13.jar groovy-servlet-2.5.13.jar j2objc-annotations-1.3.jar spring
+ -boot-starter-web-2.3.5.RELEASE.jar jackson-databind-2.11.3.jar seleniu
+ m-chrome-driver-3.141.59.jar error_prone_annotations-2.3.4.jar groovy-j
+ sr223-2.5.13.jar groovy-testng-2.5.13.jar ant-launcher-1.9.15.jar groov
+ y-cli-picocli-2.5.13.jar jline-2.14.6.jar netty-common-4.1.53.Final.jar
+  spring-boot-2.3.5.RELEASE.jar spring-boot-configuration-processor-2.3.
+ 5.RELEASE.jar spring-webmvc-5.2.10.RELEASE.jar jcommander-1.72.jar phan
+ tomjsdriver-1.4.1.jar groovy-2.5.13.jar groovy-test-junit5-2.5.13.jar j
+ ackson-datatype-jsr310-2.11.3.jar logback-core-1.2.3.jar groovy-xml-2.5
+ .13.jar spring-jdbc-5.2.10.RELEASE.jar commons-io-2.5.jar asm-5.0.4.jar
+  opentest4j-1.2.0.jar jackson-core-2.11.3.jar jakarta.el-3.0.3.jar json
+ -path-2.4.0.jar failureaccess-1.0.1.jar spring-data-keyvalue-2.3.5.RELE
+ ASE.jar selenium-safari-driver-3.141.59.jar json-smart-2.3.jar guava-30
+ .0-jre.jar dom4j-1.6.1.jar spring-boot-starter-2.3.5.RELEASE.jar okhttp
+ -3.14.9.jar spring-boot-starter-jdbc-2.3.5.RELEASE.jar netty-codec-4.1.
+ 53.Final.jar slf4j-api-1.7.30.jar hamcrest-core-2.2.jar apiguardian-api
+ -1.1.0.jar spring-jcl-5.2.10.RELEASE.jar mybatis-3.5.5.jar fastjson-1.2
+ .74.jar qdox-1.12.1.jar junit-platform-commons-1.6.3.jar commons-codec-
+ 1.14.jar tomcat-embed-core-9.0.39.jar
+

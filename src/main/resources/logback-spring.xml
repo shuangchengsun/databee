@@ -3,8 +3,19 @@
                xmlns="http://www.padual.com/java/logback.xsd"
                debug="false" scan="true" scanPeriod="300 seconds"
                xsi:schemaLocation="http://www.padual.com/java/logback.xsd">
+    <springProfile name="dev">
+        <property name="logPath" value="/Users/sunshuangcheng/source/java/databee/logs"/>
+    </springProfile>
 
-    <property name="logPath" value="/Users/sunshuangcheng/source/java/databee/logs"/>
+    <springProfile name="prod">
+        <property name="logPath" value="/logs"/>
+    </springProfile>
+
+<!--    <property name="logPath" value="/Users/sunshuangcheng/source/java/databee/logs"/>-->
+    <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5level --- [%thread] %logger{50} - %msg%n"/>
+    <property name="logFileNamePattern" value="-%d{yyyy-MM-dd}.%i.log"/>
+    <property name="logMaxFileSize" value="100MB"/>
+    <property name="logMaxHistory" value="30"/>
 
     <!--控制台-->
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
@@ -113,7 +124,7 @@
         <appender-ref ref="scriptAppender"/>
     </logger>
 
-    <!--taskRunner 的日志，记录一个task的任务情况，主要是记录task的失败原因-->
+    <!--taskRunner 的日志，记录一个task的任务情况，主要是记录task运行信息-->
     <appender name="taskRunnerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
         <file>${logPath}/taskRunner.log</file>
@@ -125,9 +136,32 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
+        <filter class="com.alan.databee.common.util.log.LogLevelFilter">
+            <minLevel>info</minLevel>
+            <maxLevel>warn</maxLevel>
+        </filter>
+    </appender>
+    <!--taskRunner 的日志，记录一个task的错误日志-->
+    <appender name="taskRunnerErrorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${logPath}/taskRunnerError.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>taskRunnerError.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
     </appender>
     <logger name="taskRunnerLogger" level="info">
         <appender-ref ref="taskRunnerAppender"/>
+        <appender-ref ref="taskRunnerErrorAppender"/>
     </logger>
 
     <!--每天处理的task的总记录-->

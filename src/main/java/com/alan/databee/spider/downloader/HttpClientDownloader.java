@@ -91,6 +91,7 @@ public class HttpClientDownloader extends AbstractDownloader {
         HttpClientRequestContext requestContext = httpUriRequestConverter.convert(request, site, proxy);
 
         Page page = Page.fail();
+        page.setRequest(request);
         try {
             HttpUriRequest httpRequest = requestGen(request, site);
 //            httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());

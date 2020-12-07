@@ -10,18 +10,20 @@ import java.util.Map;
 
 public class LogPipeline implements Pipeline {
     private static final Logger LOGGER = LoggerFactory.getLogger("LogPipelineLogger");
-    private static final Logger FxyLogger = LoggerFactory.getLogger("FxyLogger");
+
     @Override
     public void process(ResultItems resultItems, Task task) {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, Object> entry : resultItems.getAll().entrySet()) {
+            String value = entry.getValue().toString();
+            if(value.length()<=0){
+                LoggerUtil.error(LOGGER,"抓取数据长度为0",resultItems.getRequest().getUrl());
+                return;
+            }
             builder.append(entry.getKey()).append(":\t").append(entry.getValue()).append(",   ");
         }
         String msg = builder.toString();
-        if(msg.length()>0) {
-            if(msg.contains("省长")){
-                LoggerUtil.info(FxyLogger,msg);
-            }
+        if (msg.length() > 0) {
             LoggerUtil.info(LOGGER, msg);
         }
     }

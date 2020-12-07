@@ -97,7 +97,7 @@ public class HBSeedProcessor implements PageProcessor {
                 try {
                     Object HBContentProcessor = classService.getComByName("HBContentProcessor");
                     site.processorAddLast("HBContentProcessor", (PageProcessor) HBContentProcessor);
-//                    site.processorAddLast("contentProcessor",new HBContentProcessor());
+//                    site.processorAddLast("HBContentProcessor",new HBContentProcessor());
                 } catch (Exception | ClassServiceException e) {
                     LoggerUtil.error(LOGGER, "替换processor出错", e);
                 }

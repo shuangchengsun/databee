@@ -3,6 +3,7 @@ package com.alan.databee.spider.selector;
 import com.alibaba.fastjson.JSON;
 import us.codecraft.xsoup.XTokenQueue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,5 +54,15 @@ public class Json extends PlainText {
     public Selectable jsonPath(String jsonPath) {
         JsonPathSelector jsonPathSelector = new JsonPathSelector(jsonPath);
         return selectList(jsonPathSelector,getSourceTexts());
+    }
+
+    @Override
+    protected Selectable selectList(Selector selector, List<String> strings) {
+        List<String> results = new ArrayList<String>();
+        for (String string : strings) {
+            List<String> result = selector.selectList(string);
+            results.addAll(result);
+        }
+        return new Json(results);
     }
 }

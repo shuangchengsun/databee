@@ -146,11 +146,11 @@ public class DataBee {
         } else {
             // 错误日志格式： 状态，任务名称，页面url，重试次数，失败原因，状态码
             LoggerUtil.error(LOGGER, "failed", request.getUrl(), site.getRetryTimes(), SpiderErrorEnum.Download_Error, page.getStatusCode());
-            throw new SpiderTaskException(SpiderErrorEnum.Download_Error,
-                    "任务名称：" + site.getTaskName() +
-                            "网络状态码为：" + page.getStatusCode() +
-                            ", 失败的页面：" + request.getUrl() +
-                            ", 已完成的页面： " + site.getPageCount());
+//            throw new SpiderTaskException(SpiderErrorEnum.Download_Error,
+//                    "任务名称：" + site.getTaskName() +
+//                            "网络状态码为：" + page.getStatusCode() +
+//                            ", 失败的页面：" + request.getUrl() +
+//                            ", 已完成的页面： " + site.getPageCount());
         }
     }
 
@@ -160,7 +160,7 @@ public class DataBee {
             retryTimes = site.getRetryTimes();
         }
         if (retryTimes < 0) {
-            LoggerUtil.warn(LOGGER, "重试次数为0。页面将会被丢弃");
+            LoggerUtil.warn(LOGGER, "failed",request.getUrl(),site.getRetryTimes(),"重试达到上限","500");
         } else {
             Scheduler scheduler = site.getScheduler();
             request.setRetryTimes(retryTimes - 1);
@@ -258,7 +258,7 @@ public class DataBee {
         try {
             statLock.lock();
             if (!stat.compareAndSet(STAT_RUNNING, STAT_INIT)) {
-                LoggerUtil.error(LOGGER, "DataBee 状态设定错误，从Running到Init，出现线程安全问题");
+                LoggerUtil.warn(LOGGER, "DataBee 状态设定错误，从Running到Init，出现线程安全问题");
                 close();
             }
             statCondition.signalAll();

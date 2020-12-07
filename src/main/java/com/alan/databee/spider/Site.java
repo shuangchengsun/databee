@@ -48,7 +48,7 @@ public class Site {
     /**
      * 网络请求失败重试次数
      */
-    private int retryTimes = 0;
+    private int retryTimes = 1;
 
     /**
      * 网络请求失败循环重试次数
@@ -63,7 +63,7 @@ public class Site {
     /**
      * 网络请求超时时间
      */
-    private int timeOut = 5000;
+    private int timeOut = 10000;
 
     /**
      * 状态码集合

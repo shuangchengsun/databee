@@ -3,8 +3,6 @@ package com.alan.databee.service;
 import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.model.BusyReqModel;
 import com.alan.databee.model.DebugResult;
-import com.alan.databee.service.Task;
-import com.alan.databee.service.TaskService;
 import com.alan.databee.spider.DataBee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.PriorityQueue;
 import java.util.Queue;
 
 /**
@@ -35,7 +32,7 @@ public class SpiderManager {
     /**
      * 运行日常的任务。采用Spring的定时调度完成。
      */
-    @Scheduled(cron = "0 0/2 * * * ?")
+    @Scheduled(cron = "0 10 20 1/1 * ?")
     public void runDailyTask() {
         Date start = new Date();
         int sum = 0;

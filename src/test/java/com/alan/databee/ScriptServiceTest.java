@@ -22,50 +22,42 @@ import java.util.Map;
 @SpringBootTest
 public class ScriptServiceTest {
     String code = "import com.alan.databee.common.util.log.LoggerUtil;\n" +
-            "import com.alan.databee.spider.Site;\n" +
-            "import com.alan.databee.spider.page.Page;\n" +
-            "import com.alan.databee.spider.processor.PageProcessor;\n" +
-            "import com.alan.databee.spider.selector.Html;\n" +
-            "import com.alan.databee.spider.selector.Selectable;\n" +
+            "import com.alan.databee.spider.Task;\n" +
+            "import com.alan.databee.spider.model.ResultItems;\n" +
+            "import com.alan.databee.spider.pipeline.Pipeline;\n" +
             "import org.slf4j.Logger;\n" +
             "import org.slf4j.LoggerFactory;\n" +
             "\n" +
-            "import java.util.List;\n" +
+            "import java.util.Map;\n" +
             "import java.util.regex.Matcher;\n" +
             "import java.util.regex.Pattern;\n" +
             "\n" +
-            "public class HBContentProcessor implements PageProcessor {\n" +
-            "    private static final Logger LOGGER = LoggerFactory.getLogger(\"PageProcessorLogger\");\n" +
+            "public class FxyPipeline implements Pipeline {\n" +
+            "    private static final Logger LOGGER = LoggerFactory.getLogger(\"FxyLogger\");\n" +
             "    @Override\n" +
-            "    public void process(Page page, Site site) {\n" +
-            "        Html html = page.getHtml();\n" +
-            "        Selectable titleXpath = html.xpath(\"//h2[@class='text-center']\");\n" +
-            "        String title = titleXpath.get();\n" +
-            "        page.putField(\"title\",title);\n" +
-            "        page.putField(\"url\",page.getUrl());\n" +
-            "        Selectable contentXpath = html.xpath(\"//div[@class='row content_block']/div[@class='col-xs-12 xs_nopad_md_pad']/div[@class='view TRS_UEDITOR trs_paper_default trs_web']/p\");\n" +
-            "        List<String> all = contentXpath.all();\n" +
-            "        StringBuilder builder = new StringBuilder();\n" +
-            "        for(String s:all){\n" +
-            "            Pattern pattern = Pattern.compile(\"<p style=(.*?)\\\">(.*?)</p>\");\n" +
-            "            Matcher matcher = pattern.matcher(s);\n" +
-            "            if(matcher.find()){\n" +
-            "                builder.append(matcher.group(2));\n" +
-            "            }else {\n" +
-            "                LoggerUtil.warn(LOGGER,\"匹配出错\",page.getUrl());\n" +
+            "    public void process(ResultItems resultItems, Task task) {\n" +
+            "\n" +
+            "        String content = resultItems.get(\"content\");\n" +
+            "        if(content!= null){\n" +
+            "            LoggerUtil.info(LOGGER,\"url:   \"+resultItems.get(\"url\"),\"title:   \"+resultItems.get(\"title\"));\n" +
+            "        }else {\n" +
+            "            StringBuilder builder = new StringBuilder();\n" +
+            "            for (Map.Entry<String, Object> entry : resultItems.getAll().entrySet()) {\n" +
+            "                builder.append(entry.getKey()).append(\":\\t\").append(entry.getValue());\n" +
             "            }\n" +
+            "            String s = builder.toString();\n" +
+            "            Matcher urlMatcher = Pattern.compile(\"[a-zA-z]+://[^\\\\s]*\").matcher(s);\n" +
+            "            Matcher titleMatcher = Pattern.compile(\"title:(.*?)content\").matcher(s);\n" +
+            "            String url = null;\n" +
+            "            String title = null;\n" +
+            "            if(urlMatcher.find()){\n" +
+            "                url = urlMatcher.group();\n" +
+            "            }\n" +
+            "            if(titleMatcher.find()){\n" +
+            "                title = titleMatcher.group();\n" +
+            "            }\n" +
+            "            LoggerUtil.info(LOGGER,\"url:   \"+url,\"title:   \"+title);\n" +
             "        }\n" +
-            "        String content = builder.toString();\n" +
-            "        page.putField(\"content\",content);\n" +
-            "    }\n" +
-            "\n" +
-            "    @Override\n" +
-            "    public Site getSite() {\n" +
-            "        return null;\n" +
-            "    }\n" +
-            "\n" +
-            "    @Override\n" +
-            "    public void setSite() {\n" +
             "\n" +
             "    }\n" +
             "}\n";
@@ -80,7 +72,7 @@ public class ScriptServiceTest {
     @Test
     public void testCompiler(){
         try {
-            Class<?> aClass = scriptService.genClass("HBContentProcessor", code);
+            Class<?> aClass = scriptService.genClass("FxyPipeline", code);
             System.out.println(aClass.getName());
         }catch (ScriptException exception){
             LoggerUtil.error(LOGGER, SpiderErrorEnum.Script_Compiler_Error,exception);

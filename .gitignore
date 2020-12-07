@@ -34,3 +34,4 @@ build/
 
 !/src/main/java/com/alan/databee/common/util/log
 *.mp4
+out/

@@ -15,7 +15,7 @@ import java.util.Objects;
  * @Version -V1.0
  */
 public class
-Request implements Serializable ,Comparable<Request>{
+Request implements Serializable, Comparable<Request> {
 
     private static final long serialVersionUID = 2062192774891352043L;
 
@@ -40,7 +40,7 @@ Request implements Serializable ,Comparable<Request>{
     private Map<String, String> headers = new HashMap<String, String>();
 
 
-    private long priority;
+    private long priority = 1;
 
     /**
      * When it is set to TRUE, the downloader will not try to parse response body to text.
@@ -202,10 +202,10 @@ Request implements Serializable ,Comparable<Request>{
 
     @Override
     public int compareTo(Request o) {
-        if(this.priority == o.priority){
-            return this.hashCode()-o.hashCode();
-        }else {
-            return (int) (this.priority-o.priority);
+        if (this.priority == o.priority) {
+            return this.hashCode() - o.hashCode();
+        } else {
+            return (int) (this.priority - o.priority);
         }
     }
 }

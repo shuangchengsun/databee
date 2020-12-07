@@ -45,8 +45,8 @@ public class LoggerUtil {
         StringBuilder message = new StringBuilder();
         message.append(separate);
         for (Object object : objects) {
-            message.append(object.toString());
-            message.append(separate);
+            message.append(object.toString()).append(" ");
+            message.append(separate).append(" ");
 
         }
         return message.toString();
