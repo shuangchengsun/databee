@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
  * @Version -V1.0
  */
 public class Task implements Comparable<Task> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Task.class);
 
     private SpiderTaskConfig taskConfig;
     private int priority;
@@ -27,7 +26,6 @@ public class Task implements Comparable<Task> {
         this.taskName = taskConfig.getTaskName();
         this.priority = taskConfig.getPriority();
         SpiderComponentConfig componentConfig = taskConfig.getSpiderComponentConfig();
-        configCheck(componentConfig);
         site = new Site()
                 .setSeed(taskConfig.getUrl())
                 .setSeedRequest(taskConfig.getSeedRequest())
@@ -44,12 +42,6 @@ public class Task implements Comparable<Task> {
         this.site = site;
         this.taskName = taskName;
         this.priority = priority;
-    }
-
-    private void configCheck(SpiderComponentConfig componentConfig) {
-        if (componentConfig.getPageProcessor() == null) {
-            LoggerUtil.error(LOGGER,"task组件异常",taskName);
-        }
     }
 
     public SpiderTaskConfig getTaskConfig() {

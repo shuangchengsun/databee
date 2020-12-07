@@ -56,8 +56,6 @@ public class TaskConfigService {
     @Autowired
     private ClassService classService;
 
-//    private GroovyClassLoader loader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader());
-
     public List<SpiderTaskConfig> getAllTask() {
         List<SpiderConfigDao> daily = spiderConfigMapper.getDaily();
         List<SpiderTaskConfig> taskConfigs = new LinkedList<>();
@@ -113,7 +111,7 @@ public class TaskConfigService {
                         componentConfigDao.getPipelines());
             } catch (ClassServiceException e) {
                 // 错误日志
-               LoggerUtil.error(LOGGER, taskConfig.getTaskName(), "装配组件是发生错误", componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
+                LoggerUtil.error(LOGGER, taskConfig.getTaskName(), componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
                         componentConfigDao.getPipelines(), e);
             }
             // 此处不管taskConfig是否合法，都加载到总任务中
@@ -172,15 +170,15 @@ public class TaskConfigService {
         return componentConfig;
     }
 
-    public void saveSpiderConfig(SpiderConfigDao configDao){
+    public void saveSpiderConfig(SpiderConfigDao configDao) {
         spiderConfigMapper.saveConfig(configDao);
     }
 
-    public void saveComponentConfig(ComponentConfigDao componentConfigDao){
+    public void saveComponentConfig(ComponentConfigDao componentConfigDao) {
         componentConfigMapper.saveConfig(componentConfigDao);
     }
 
-    public void saveComponent(ComponentDao componentDao){
+    public void saveComponent(ComponentDao componentDao) {
         componentMapper.saveComponent(componentDao);
     }
 

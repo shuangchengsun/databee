@@ -15,7 +15,7 @@
     <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5level --- [%thread] %logger{50} - %msg%n"/>
     <property name="logFileNamePattern" value="-%d{yyyy-MM-dd}.%i.log"/>
     <property name="logMaxFileSize" value="100MB"/>
-    <property name="logMaxHistory" value="30"/>
+    <property name="logMaxHistory" value="14"/>
 
     <!--控制台-->
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
@@ -31,8 +31,8 @@
         <append>true</append>
         <file>${logPath}/common-error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>common-error.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>common-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
@@ -48,8 +48,8 @@
         <append>true</append>
         <file>${logPath}/common.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>common.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>common.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
@@ -70,8 +70,8 @@
         <append>true</append>
         <file>${logPath}/taskConfig.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>taskConfig.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>taskConfig.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
@@ -87,8 +87,8 @@
         <append>true</append>
         <file>${logPath}/pageProcessor.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>pageProcessor.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>pageProcessor.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
@@ -108,8 +108,8 @@
         <append>true</append>
         <file>${logPath}/script.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>script.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>script.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
@@ -125,12 +125,12 @@
     </logger>
 
     <!--taskRunner 的日志，记录一个task的任务情况，主要是记录task运行信息-->
-    <appender name="taskRunnerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="taskAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
-        <file>${logPath}/taskRunner.log</file>
+        <file>${logPath}/task.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>taskRunner.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>task.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
@@ -141,13 +141,13 @@
             <maxLevel>warn</maxLevel>
         </filter>
     </appender>
-    <!--taskRunner 的日志，记录一个task的错误日志-->
-    <appender name="taskRunnerErrorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--taskRunner 的日志，记录一个task运行中的的错误日志-->
+    <appender name="taskErrorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
-        <file>${logPath}/taskRunnerError.log</file>
+        <file>${logPath}/taskError.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>taskRunnerError.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>taskError.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
@@ -159,17 +159,17 @@
             <onMismatch>DENY</onMismatch>
         </filter>
     </appender>
-    <logger name="taskRunnerLogger" level="info">
-        <appender-ref ref="taskRunnerAppender"/>
-        <appender-ref ref="taskRunnerErrorAppender"/>
+    <logger name="dataBee" level="info">
+        <appender-ref ref="taskAppender"/>
+        <appender-ref ref="taskErrorAppender"/>
     </logger>
 
     <!--每天处理的task的总记录-->
-    <appender name="taskAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="spiderManagerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
-        <file>${logPath}/task.log</file>
+        <file>${logPath}/spiderManager.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>task.%i.log.zip</fileNamePattern>
+            <fileNamePattern>spiderManager.%i.log.zip</fileNamePattern>
             <minIndex>1</minIndex>
             <maxIndex>10</maxIndex>
         </rollingPolicy>
@@ -181,16 +181,17 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <logger name="taskLogger" level="info" additivity="true">
-        <appender-ref ref="taskAppender"/>
+    <!--SpiderManager中引用-->
+    <logger name="spiderManagerLogger" level="info" additivity="true">
+        <appender-ref ref="spiderManagerAppender"/>
     </logger>
 
     <appender name="controllerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
         <file>${logPath}/controller.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>controller.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>controller.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%t - %-5p] %logger - %msg%n</pattern>
@@ -201,8 +202,11 @@
         <appender-ref ref="controllerAppender"/>
     </logger>
 
+
+    <!--debug专用日志-->
     <logger name="debugLogger" level="debug" additivity="false">
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="common"/>
     </logger>
 
 
@@ -211,32 +215,32 @@
         <append>true</append>
         <file>${logPath}/Content/content.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>content.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>content.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <logger name="LogPipelineLogger" level="info">
+    <logger name="LogPipelineLogger" level="info" additivity="false">
         <appender-ref ref="LogePipelineAppender"/>
     </logger>
 
-    <!--通过日志固化数据-->
+    <!--Fxy的政府爬虫数据固化-->
     <appender name="FxyAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
         <file>${logPath}/Content/Fxy_content.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>Fxy_content.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <fileNamePattern>Fxy_content.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <logger name="FxyLogger" level="debug">
+    <logger name="FxyLogger" level="debug" additivity="false">
         <appender-ref ref="FxyAppender"/>
     </logger>
 

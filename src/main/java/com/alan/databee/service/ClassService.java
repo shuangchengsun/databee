@@ -38,7 +38,8 @@ public class ClassService implements InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger("scriptAppender");
 
     private LoadingCache<String, Class<?>> classCache;
-    private Map<String,Object> commonComponent = new HashMap();
+    private final Map<String,Object> commonComponent = new HashMap();
+    private final Map<String, Class<?>> basic = new HashMap<>();
 
     @Autowired
     ComLoader comLoader;
@@ -69,9 +70,12 @@ public class ClassService implements InitializingBean {
             if (commonComponent.containsKey(name)) {
                 return commonComponent.get(name);
             }
-
-
-            Class<?> aClass = classCache.get(name);
+            Class<?> aClass = null;
+            if(basic.containsKey(name)){
+                aClass = basic.get(name);
+            }else {
+                aClass = classCache.get(name);
+            }
             obj = aClass.newInstance();
             Method method = aClass.getMethod("setClassService", ClassService.class);
             method.invoke(obj, this);
@@ -96,12 +100,8 @@ public class ClassService implements InitializingBean {
         return obj;
     }
     private void setComponent() {
-//        commonComponent.add(HttpClientDownloader.class.getName());
-//        commonComponent.add(SeleniumDownloader.class.getName());
-        classCache.put(QueueScheduler.class.getName(),QueueScheduler.class);
-//        commonComponent.add(LogPipeline.class.getName());
-        classCache.put(PriorityScheduler.class.getName(),PriorityScheduler.class);
-//        commonComponent.add(ConsolePipeline.class.getName());
+        basic.put(QueueScheduler.class.getName(),QueueScheduler.class);
+        basic.put(PriorityScheduler.class.getName(),PriorityScheduler.class);
         commonComponent.put(HttpClientDownloader.class.getName(),new HttpClientDownloader());
         commonComponent.put(SeleniumDownloader.class.getName(),new SeleniumDownloader());
         commonComponent.put(LogPipeline.class.getName(),new LogPipeline());

@@ -25,7 +25,7 @@ public class SpiderManager {
     @Autowired
     TaskService taskService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("taskLogger");
+    private static final Logger LOGGER = LoggerFactory.getLogger("spiderManagerLogger");
 
     private DataBee dataBee = new DataBee().setSync(false);
 
