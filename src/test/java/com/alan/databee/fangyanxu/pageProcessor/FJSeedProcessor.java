@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -26,7 +27,11 @@ public class FJSeedProcessor implements PageProcessor {
         boolean flag = true;
         int index = 0;
         try {
-            Date current = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Date today = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            int circle = site.getTaskCircle();
+            calendar.add(Calendar.DATE, -circle);
             for (String a : all) {
                 try {
                     Json node = new Json(a);
@@ -35,18 +40,20 @@ public class FJSeedProcessor implements PageProcessor {
                     String href = node.jsonPath("$.url").get();
                     String content = node.jsonPath("$.content").get();
                     Date time = simpleDateFormat.parse(timeString);
-                    if (time.before(current)) {
-                        flag = false;
-                    } else {
-                        String m = "url"+":\t"+href
-                                +",   title"+":\t"+title
-                                +",   content"+":\t"+content.replaceAll("<br>","");
-                        page.putField(String.valueOf(index),m);
+                    Calendar current = Calendar.getInstance();
+                    current.setTime(time);
+                    if (current.after(calendar)) {
+                        String m = "url" + ":\t" + href
+                                + ",   title" + ":\t" + title
+                                + ",   content" + ":\t" + content.replaceAll("<br>", "");
+                        page.putField(String.valueOf(index), m);
                         index++;
+                    } else {
+                        flag = false;
 //                        System.out.println("time: " + timeString + ", href: " + href + ", title: " + title);
                     }
                 } catch (PathNotFoundException e) {
-                    LoggerUtil.error(LOGGER,"内容解析错误",a,page.getUrl());
+                    LoggerUtil.error(LOGGER, "内容解析错误", a, page.getUrl());
                 }
 
             }
@@ -65,9 +72,9 @@ public class FJSeedProcessor implements PageProcessor {
                 request.setUrl(newUrl);
                 page.addTargetRequest(request);
             }
-            LoggerUtil.info(LOGGER,"页面解析完成",page.getUrl());
+            LoggerUtil.info(LOGGER, "页面解析完成", page.getUrl());
         } catch (ParseException e) {
-            LoggerUtil.warn(LOGGER,"时间解析错误",page.getUrl());
+            LoggerUtil.warn(LOGGER, "时间解析错误", page.getUrl());
         }
     }
 

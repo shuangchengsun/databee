@@ -11,7 +11,7 @@
         <property name="logPath" value="/logs"/>
     </springProfile>
 
-<!--    <property name="logPath" value="/Users/sunshuangcheng/source/java/databee/logs"/>-->
+    <!--    <property name="logPath" value="/Users/sunshuangcheng/source/java/databee/logs"/>-->
     <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5level --- [%thread] %logger{50} - %msg%n"/>
     <property name="logFileNamePattern" value="-%d{yyyy-MM-dd}.%i.log"/>
     <property name="logMaxFileSize" value="100MB"/>
@@ -31,7 +31,7 @@
         <append>true</append>
         <file>${logPath}/common-error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>common-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/common-error.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -48,7 +48,7 @@
         <append>true</append>
         <file>${logPath}/common.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>common.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/common.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -60,17 +60,26 @@
             <maxLevel>warn</maxLevel>
         </filter>
     </appender>
-    <root level="info">
-        <appender-ref ref="consoleAppender"/>
-        <appender-ref ref="commonError"/>
-    </root>
+    <springProfile name="prod">
+        <root level="warn">
+            <appender-ref ref="consoleAppender"/>
+            <appender-ref ref="commonError"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="dev">
+        <root level="info">
+            <appender-ref ref="consoleAppender"/>
+            <appender-ref ref="commonError"/>
+        </root>
+    </springProfile>
 
     <!--和数据库相关的日志-->
     <appender name="taskConfigAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
         <file>${logPath}/taskConfig.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>taskConfig.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/taskConfig.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -87,7 +96,7 @@
         <append>true</append>
         <file>${logPath}/pageProcessor.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>pageProcessor.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/pageProcessor.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -108,7 +117,7 @@
         <append>true</append>
         <file>${logPath}/script.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>script.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/script.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -129,7 +138,7 @@
         <append>true</append>
         <file>${logPath}/task.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>task.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/task.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -146,7 +155,7 @@
         <append>true</append>
         <file>${logPath}/taskError.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>taskError.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/taskError.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -169,7 +178,7 @@
         <append>true</append>
         <file>${logPath}/spiderManager.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>spiderManager.%i.log.zip</fileNamePattern>
+            <fileNamePattern>${logPath}/spiderManager/spiderManager.%i.log.zip</fileNamePattern>
             <minIndex>1</minIndex>
             <maxIndex>10</maxIndex>
         </rollingPolicy>
@@ -190,7 +199,7 @@
         <append>true</append>
         <file>${logPath}/controller.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>controller.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/controller.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -198,7 +207,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <logger name="controllerLogger" level="info" >
+    <logger name="controllerLogger" level="info">
         <appender-ref ref="controllerAppender"/>
     </logger>
 
@@ -215,7 +224,7 @@
         <append>true</append>
         <file>${logPath}/Content/content.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>content.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/content.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -232,7 +241,7 @@
         <append>true</append>
         <file>${logPath}/Content/Fxy_content.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>Fxy_content.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/%d{yyyy-MM-dd}/Fxy_content.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${logMaxHistory}</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -243,7 +252,6 @@
     <logger name="FxyLogger" level="debug" additivity="false">
         <appender-ref ref="FxyAppender"/>
     </logger>
-
 
 
 </configuration>

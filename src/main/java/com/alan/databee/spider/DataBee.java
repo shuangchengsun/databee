@@ -121,6 +121,7 @@ public class DataBee {
                     pipeline.process(page.getResultItems(), null);
                 }
             }
+            site.successPageNumInc();
         } else {
             // 错误日志格式： 任务名字，是否成功，页面链接，失败原因， 详细信息
             LoggerUtil.error(LOGGER, site.getTaskName(), TaskStatus.FAILED, page.getUrl(),

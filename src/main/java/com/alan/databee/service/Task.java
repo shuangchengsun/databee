@@ -27,6 +27,7 @@ public class Task implements Comparable<Task> {
         this.priority = taskConfig.getPriority();
         SpiderComponentConfig componentConfig = taskConfig.getSpiderComponentConfig();
         site = new Site()
+                .setTaskCircle(taskConfig.getCircle())
                 .setSeed(taskConfig.getUrl())
                 .setSeedRequest(taskConfig.getSeedRequest())
                 .setDownloader(componentConfig.getDownloader())

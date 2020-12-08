@@ -52,9 +52,9 @@ public class Site {
     private int retryTimes = 3;
 
     /**
-     * 网络请求失败循环重试次数
+     * 任务的执行周期
      */
-    private int cycleRetryTimes = 0;
+    private int taskCircle = 1;
 
     /**
      * 重试睡眠的时间
@@ -119,7 +119,7 @@ public class Site {
     /**
      * 描述一个任务中一共爬取了多少页面
      */
-    private AtomicInteger pageCount = new AtomicInteger(0);
+    private AtomicInteger pageCount = new AtomicInteger(1);
 
     private AtomicInteger successPageNum = new AtomicInteger(0);
 
@@ -245,14 +245,12 @@ public class Site {
         return this;
     }
 
-
-    public int getCycleRetryTimes() {
-        return cycleRetryTimes;
+    public int getTaskCircle() {
+        return taskCircle;
     }
 
-
-    public Site setCycleRetryTimes(int cycleRetryTimes) {
-        this.cycleRetryTimes = cycleRetryTimes;
+    public Site setTaskCircle(int taskCircle) {
+        this.taskCircle = taskCircle;
         return this;
     }
 
@@ -486,7 +484,6 @@ public class Site {
                 ", charset='" + charset + '\'' +
                 ", sleepTime=" + sleepTime +
                 ", retryTimes=" + retryTimes +
-                ", cycleRetryTimes=" + cycleRetryTimes +
                 ", retrySleepTime=" + retrySleepTime +
                 ", timeOut=" + timeOut +
                 ", acceptStatCode=" + acceptStatCode +

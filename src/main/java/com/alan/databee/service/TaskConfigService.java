@@ -75,6 +75,8 @@ public class TaskConfigService {
 
             taskConfig.setGmtModify(spiderConfigDao.getGmtModify());
 
+            taskConfig.setCircle(spiderConfigDao.getCircle());
+
             String modifierName = spiderConfigDao.getModifier();
             UserDao modifierDao = userMapper.getByName(modifierName);
             taskConfig.setModifier(userDaoToUser(modifierDao));

@@ -77,6 +77,7 @@ public class SpiderTaskConfig {
      */
     private Request seedRequest;
 
+    private int circle;
 
     public String getTaskName() {
         return taskName;
@@ -180,5 +181,13 @@ public class SpiderTaskConfig {
 
     public void setSeedRequest(Request seedRequest) {
         this.seedRequest = seedRequest;
+    }
+
+    public int getCircle() {
+        return circle;
+    }
+
+    public void setCircle(int circle) {
+        this.circle = circle;
     }
 }

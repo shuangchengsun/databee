@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -39,7 +40,11 @@ public class HBSeedProcessor implements PageProcessor {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         boolean flag = true;
         try {
-            Date current = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Date today = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            int circle = site.getTaskCircle();
+            calendar.add(Calendar.DATE, -circle);
             for (String s : all) {
                 Document document = DocumentHelper.parseText(s);
                 Element rootElement = document.getRootElement();
@@ -53,18 +58,22 @@ public class HBSeedProcessor implements PageProcessor {
                     if (span.attribute("class").getValue().equalsIgnoreCase("pull-right hidden-xs")) {
                         String timeString = span.getText();
                         Date time = simpleDateFormat.parse(timeString);
-                        if (time.before(current)) {
-                            flag = false;
-                        } else {
+                        Calendar current = Calendar.getInstance();
+                        current.setTime(time);
+                        if (current.after(calendar)) {
                             Request request = new Request(basic + href);
                             request.setPriority(1);
                             page.addTargetRequest(request);
+                            System.out.println("time: " + timeString + ", href: " + href + ", title: " + title);
+                        } else {
+                            flag = false;
                         }
                     }
                 }
             }
             if (flag) {
                 // 说明还需要继续查找新闻列表
+                System.out.println("深挖爬取 " + seedUrl.toString());
                 String[] split = seedUrl.split("/");
                 String s = split[split.length - 1];
                 if (s.contains("_")) {
@@ -90,8 +99,8 @@ public class HBSeedProcessor implements PageProcessor {
                     builder.append("index_1.shtml");
                     String newSeed = builder.toString();
                     seedRequest.setUrl(newSeed);
-                    page.addTargetRequest(seedRequest);
                 }
+                page.addTargetRequest(seedRequest);
             } else {
                 site.removeProcessor("HBSeedProcessor");
                 try {

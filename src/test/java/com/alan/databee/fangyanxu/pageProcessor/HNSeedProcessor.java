@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,8 +38,11 @@ public class HNSeedProcessor implements PageProcessor {
         String basic = site.getSeed();
         boolean flag = true;
         try {
-            Date current = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
-//            Date current = simpleDateFormat.parse("2020-11-30");
+            Date today = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            int circle = site.getTaskCircle();
+            calendar.add(Calendar.DATE, -circle);
             for (String ulString : all) {
                 Document document = DocumentHelper.parseText(ulString);
                 Element rootElement = document.getRootElement();
@@ -48,14 +52,15 @@ public class HNSeedProcessor implements PageProcessor {
                 String href = a.attributeValue("href");
                 String title = a.attributeValue("title");
                 Date time = simpleDateFormat.parse(timeString);
-
-                if (time.before(current)) {
-                    // 出现了不合规的时间
-                    flag = false;
-                } else {
+                Calendar current = Calendar.getInstance();
+                current.setTime(time);
+                if (current.after(calendar)) {
                     Request request = new Request(basic + href);
                     request.setPriority(1);
                     page.addTargetRequest(request);
+                } else {
+                    // 出现了不合规的时间
+                    flag = false;
                 }
             }
 

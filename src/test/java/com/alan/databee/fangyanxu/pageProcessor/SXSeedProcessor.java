@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,7 +38,11 @@ public class SXSeedProcessor implements PageProcessor {
 
         try {
             boolean flag = true;
-            Date current = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Date today = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            int circle = site.getTaskCircle();
+            calendar.add(Calendar.DATE, -circle);
             for (String s : all) {
                 Document document = DocumentHelper.parseText(s);
                 Element rootElement = document.getRootElement();
@@ -49,14 +54,16 @@ public class SXSeedProcessor implements PageProcessor {
                 String href = a.attributeValue("href");
 
                 Date time = simpleDateFormat.parse(timeString.substring(1, timeString.length() - 1));
-                if (time.before(current)) {
-                    // 出现了不合规的时间
-                    flag = false;
-                } else {
+                Calendar current = Calendar.getInstance();
+                current.setTime(time);
+                if (current.after(calendar)) {
                     Request request = new Request(basic + href);
                     request.setMethod("GET")
                             .setPriority(1);
                     page.addTargetRequest(request);
+                } else {
+                    // 出现了不合规的时间
+                    flag = false;
                 }
                 System.out.println("time: " + timeString + ", href: " + href + ", title" + title);
             }
