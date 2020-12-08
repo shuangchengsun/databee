@@ -1,5 +1,6 @@
 package com.alan.databee.service;
 
+import com.alan.databee.common.ScriptUtil;
 import com.alan.databee.common.util.StringUtil;
 import com.alan.databee.dao.model.ComponentConfigDao;
 import com.alan.databee.dao.model.ComponentDao;
@@ -29,7 +30,8 @@ public class TaskService {
     private TaskConfigService configService;
 
     @Autowired
-    private ScriptService scriptService;
+    private ClassService classService;
+
     private static final int SUBMIT_NEW = 0x01;
     private static final int SUCCESS_STAT = 0x00;
 
@@ -43,130 +45,63 @@ public class TaskService {
         return priorityQueue;
     }
 
+    /**
+     * 依据发送的数据，生成一个Task
+     * @param model
+     * @return
+     */
     public Task genTask(BusyReqModel model) {
         return null;
     }
 
+    /**
+     * 提交一个任务， 首先检查任务中的组件是否合法、其次生成各种组件的配置数据、最后提交数据库
+     *
+     * @param model 数据模型
+     * @param user  标志是谁提交的
+     * @return
+     */
     public DebugResult submitTask(BusyReqModel model, User user) {
         // 1、检查传参是否正确
         DebugResult result = null;
-        if (!preCheck(model, SUBMIT_NEW)) {
-            result = buildError(ResultEnum.Component_Missing);
-            result.setTime(0);
-            result.setDownloadStat(ResultEnum.Result_Undefined.getStatMsg());
-            result.setPipelineStat(ResultEnum.Result_Undefined.getStatMsg());
-            return result;
-        }
+        boolean comCheck = preCheck(model, SUBMIT_NEW);
+
         // 2、检查组件是否使用了默认的组件名字，并检查组件是否能够通过编译
         String downloader = model.getDownloader();
-        if (downloader != null && downloader.length() <= 32) {
-            // 说明使用的是默认的downloader
-            if (!CommonConfig.isContainCom(downloader)) {
-                result = buildError(ResultEnum.Component_Undefined);
-                result.addExtMsg("ErrMsg", "使用通用的downloader时名称错误，组件名：" + downloader);
-                return result;
-            }
-        } else if (downloader != null) {
-            // 使用自己编写的组件
-            result = checkComCompile(downloader);
-            if (result != null && result.getStat() != SUCCESS_STAT)
-                return result;
-        }
+
+        comCheck &= classService.checkScript(downloader);
+
         List<String> pageProcessor = model.getPageProcessor();
         for (String processor : pageProcessor) {
-            result = checkComCompile(processor);
-            if (result != null && result.getStat() != SUCCESS_STAT)
-                return result;
+            if (processor == null || processor.length() == 0) {
+                comCheck = false;
+            }
+            comCheck &= classService.checkScript(processor);
         }
         List<String> pipelines = model.getPipeline();
         for (String pipeline : pipelines) {
-            if(pipeline.length()>32) {
-                result = checkComCompile(pipeline);
-                if (result != null && result.getStat() != SUCCESS_STAT)
-                    return result;
-            }else {
-                if(!CommonConfig.isContainCom(pipeline)){
-                    result = buildError(ResultEnum.Component_Undefined);
-                    result.addExtMsg("ErrMsg", "使用通用的downloader时名称错误，组件名：" + pipeline);
-                    return result;
-                }
-            }
+            comCheck &= classService.checkScript(pipeline);
         }
+
         String scheduler = model.getScheduler();
-        result = checkComCompile(scheduler);
-        if (result != null && result.getStat() != SUCCESS_STAT)
+        comCheck &= classService.checkScript(scheduler);
+
+        if (!comCheck) {
+            result = buildError(ResultEnum.Component_Missing);
+            result.setTime(0);
+            result.setDownloadStat(ResultEnum.Result_Undefined);
+            result.setPipelineStat(ResultEnum.Result_Undefined);
             return result;
-
+        }
         // 组装数据
-        SpiderConfigDao configDao = AssemblyDao(model, user);
-        ComponentConfigDao componentConfigDao = new ComponentConfigDao();
-        componentConfigDao.setName(configDao.getComponentConfig());
-        componentConfigDao.setVersion(1);
-        List<ComponentDao> componentDaoList = new ArrayList<>();
+        SpiderConfigDao configDao = configService.genSpiderConfig(model, user.getUserName());
+
         try {
-            if (downloader != null && downloader.length() > 32) {
-                ComponentDao downloadComponentDao = new ComponentDao();
-                String comName = getComName(downloader);
-                comName = user.getUserName() + comName;
-                if (comName.length() > 32) {
-                    comName = comName.substring(0, 32);
-                }
-                downloadComponentDao.setName(comName);
-                downloadComponentDao.setContent(downloader);
-                componentDaoList.add(downloadComponentDao);
-                componentConfigDao.setDownloader(comName);
-            } else if (downloader != null) {
-                componentConfigDao.setDownloader(downloader);
-            }
 
-            // 目前，只支持一个
-            for (String processor : pageProcessor) {
-                ComponentDao processorDao = new ComponentDao();
-                String comName = getComName(processor);
-                comName = user.getUserName() + comName;
-                if (comName.length() > 32) {
-                    comName = comName.substring(0, 32);
-                }
-                processorDao.setName(comName);
-                processorDao.setContent(processor);
-                componentDaoList.add(processorDao);
-                componentConfigDao.setPageProcessor(comName);
-            }
-
-            StringBuilder stringBuilder = new StringBuilder();
-            for (String pipeline : pipelines) {
-                if (pipeline != null && pipeline.length() > 32) {
-                    ComponentDao pipelineDao = new ComponentDao();
-                    String comName = getComName(pipeline);
-                    comName = user.getUserName() + comName;
-                    if (comName.length() > 32) {
-                        comName = comName.substring(0, 32);
-                    }
-                    pipelineDao.setName(comName);
-                    pipelineDao.setContent(pipeline);
-                    componentDaoList.add(pipelineDao);
-                    stringBuilder.append(comName).append(",");
-                } else if (pipeline != null) {
-                    stringBuilder.append(pipeline).append(",");
-                }
-            }
-            String pipelineName = stringBuilder.deleteCharAt(stringBuilder.length()).toString();
-            componentConfigDao.setPipelines(pipelineName);
-
-            if (scheduler != null && scheduler.length() > 32) {
-                ComponentDao schedulerDao = new ComponentDao();
-                String comName = getComName(scheduler);
-                comName = user.getUserName() + comName;
-                if (comName.length() > 32) {
-                    comName = comName.substring(0, 32);
-                }
-                schedulerDao.setName(comName);
-                schedulerDao.setContent(scheduler);
-                componentConfigDao.setSchedule(comName);
-                componentDaoList.add(schedulerDao);
-            } else if (scheduler != null) {
-                componentConfigDao.setSchedule(scheduler);
-            }
+            ComponentConfigDao componentConfigDao = configService.genComConfig(model);
+            componentConfigDao.setName(configDao.getComponentConfig());
+            componentConfigDao.setVersion(1);
+            List<ComponentDao> componentDaoList = configService.genCom(model);
             // 写入数据库
             configService.saveSpiderConfig(configDao);
             configService.saveComponentConfig(componentConfigDao);
@@ -182,7 +117,6 @@ public class TaskService {
             result.setMsg("在编译时找到了多个class");
 
         }
-
         return result;
     }
 
@@ -193,7 +127,6 @@ public class TaskService {
         if (StringUtil.isEmpty(model.getSeed()) || StringUtil.isBlank(model.getSeed())) {
             return false;
         }
-
         List<String> pageProcessor = model.getPageProcessor();
         if (pageProcessor == null || pageProcessor.size() <= 0) {
             return false;
@@ -212,59 +145,4 @@ public class TaskService {
         result.setMsg(resultEnum.getStatMsg());
         return result;
     }
-
-    private String getComName(String com) throws ScriptException {
-        Pattern pattern = Pattern.compile("^public(?<type>\\w+|\\s+)class (?<name>\\w+)");
-        Matcher matcher = pattern.matcher(com);
-        int find = 0;
-        String name = null;
-        while (matcher.find()) {
-            if (find >= 1) {
-                throw new ScriptException(SpiderErrorEnum.Script_ClassNum_Error);
-            }
-            find++;
-            name = matcher.group("name");
-        }
-        return name;
-    }
-
-    private DebugResult checkComCompile(String com) {
-        if(com == null || com.length()==0){
-            return null;
-        }
-        DebugResult result = null;
-        try {
-            String comName = getComName(com);
-            scriptService.genClass(comName, com);
-        } catch (ScriptException exception) {
-            result = buildError(ResultEnum.Component_Compiler_Error);
-            result.addExtMsg("ErrMsg", "组件的代码编译未通过，组件名: " + com);
-        }
-        return result;
-    }
-
-    private SpiderConfigDao AssemblyDao(BusyReqModel model, User user) {
-        SpiderConfigDao configDao = new SpiderConfigDao();
-        if (model.getBusyCode() == SUBMIT_NEW) {
-            configDao.setCreator(user.getUserName());
-
-            long l = System.currentTimeMillis();
-            int i = user.getUserName().hashCode();
-            String componentConfigName = String.valueOf(i).substring(0, 16) + String.valueOf(l) + "_v1";
-            configDao.setComponentConfig(componentConfigName);
-
-            configDao.setDepth(model.getDepth());
-
-            configDao.setGmtModify(new Date());
-            configDao.setGmtCreate(new Date());
-            configDao.setModifier(user.getUserName());
-            configDao.setPriority(1);
-            configDao.setTaskName(model.getTaskName());
-            configDao.setTaskType("daily");
-            configDao.setThread(1);
-            configDao.setUrl(model.getSeed());
-        }
-        return configDao;
-    }
-
 }

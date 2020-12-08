@@ -87,16 +87,16 @@ public class DebugResult {
         return downloadStat;
     }
 
-    public void setDownloadStat(String downloadStat) {
-        this.downloadStat = downloadStat;
+    public void setDownloadStat(ResultEnum resultEnum) {
+        this.downloadStat = resultEnum.getStatMsg();
     }
 
     public String getPipelineStat() {
         return pipelineStat;
     }
 
-    public void setPipelineStat(String pipelineStat) {
-        this.pipelineStat = pipelineStat;
+    public void setPipelineStat(ResultEnum resultEnum) {
+        this.pipelineStat = resultEnum.getStatMsg();
     }
 
     public Map<String, String> getExtMsg() {

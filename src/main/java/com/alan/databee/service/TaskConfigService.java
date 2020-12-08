@@ -1,5 +1,6 @@
 package com.alan.databee.service;
 
+import com.alan.databee.common.ScriptUtil;
 import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.dao.mapper.ComponentConfigMapper;
 import com.alan.databee.dao.mapper.ComponentMapper;
@@ -9,10 +10,12 @@ import com.alan.databee.dao.model.ComponentConfigDao;
 import com.alan.databee.dao.model.ComponentDao;
 import com.alan.databee.dao.model.SpiderConfigDao;
 import com.alan.databee.dao.model.UserDao;
+import com.alan.databee.model.BusyReqModel;
 import com.alan.databee.model.RequestConfig;
 import com.alan.databee.spider.downloader.Downloader;
 import com.alan.databee.spider.downloader.HttpClientDownloader;
 import com.alan.databee.spider.exception.ClassServiceException;
+import com.alan.databee.spider.exception.ScriptException;
 import com.alan.databee.spider.model.Request;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
@@ -27,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -172,6 +177,100 @@ public class TaskConfigService {
         return componentConfig;
     }
 
+    public SpiderConfigDao genSpiderConfig(BusyReqModel model, String userName) {
+        SpiderConfigDao configDao = new SpiderConfigDao();
+
+        configDao.setCreator(userName);
+
+        long l = System.currentTimeMillis();
+        int i = userName.hashCode();
+        String componentConfigName = String.valueOf(i).substring(0, 16) + String.valueOf(l) + "_v1";
+        configDao.setComponentConfig(componentConfigName);
+
+        configDao.setDepth(model.getDepth());
+
+        configDao.setGmtModify(new Date());
+        configDao.setGmtCreate(new Date());
+        configDao.setModifier(userName);
+        configDao.setPriority(1);
+        configDao.setTaskName(model.getTaskName());
+        configDao.setTaskType("daily");
+        configDao.setThread(1);
+        configDao.setUrl(model.getSeed());
+        return configDao;
+    }
+
+    public List<ComponentDao> genCom(BusyReqModel model) throws ScriptException {
+        List<ComponentDao> componentDaoList = new ArrayList<>();
+
+        // downloader
+        String downloader = model.getDownloader();
+        ComponentDao downloadComponentDao = new ComponentDao();
+        String comName = ScriptUtil.getComName(downloader);
+        downloadComponentDao.setName(comName);
+        downloadComponentDao.setContent(downloader);
+        componentDaoList.add(downloadComponentDao);
+
+        // pageProcessor
+        List<String> pageProcessor = model.getPageProcessor();
+        for (String processor : pageProcessor) {
+            ComponentDao processorDao = new ComponentDao();
+            comName = ScriptUtil.getComName(processor);
+            processorDao.setName(comName);
+            processorDao.setContent(processor);
+            componentDaoList.add(processorDao);
+        }
+
+        // pipeline
+        List<String> pipelines = model.getPipeline();
+        for (String pipeline : pipelines) {
+            ComponentDao pipelineDao = new ComponentDao();
+            comName = ScriptUtil.getComName(pipeline);
+            pipelineDao.setName(comName);
+            pipelineDao.setContent(pipeline);
+            componentDaoList.add(pipelineDao);
+        }
+
+        // scheduler
+        String scheduler = model.getScheduler();
+        ComponentDao schedulerDao = new ComponentDao();
+        comName = ScriptUtil.getComName(scheduler);
+        schedulerDao.setName(comName);
+        schedulerDao.setContent(scheduler);
+        componentDaoList.add(schedulerDao);
+
+        return componentDaoList;
+    }
+
+    public ComponentConfigDao genComConfig(BusyReqModel model) throws ScriptException {
+
+        ComponentConfigDao componentConfigDao = new ComponentConfigDao();
+        // 目前，只支持一个
+        List<String> pageProcessor = model.getPageProcessor();
+        for (String processor : pageProcessor) {
+            componentConfigDao.setPageProcessor(ScriptUtil.getComName(processor));
+        }
+
+        List<String> pipelines = model.getPipeline();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String pipeline : pipelines) {
+            String comName = ScriptUtil.getComName(pipeline);
+            stringBuilder.append(comName).append(",");
+        }
+        String pipelineName = stringBuilder.deleteCharAt(stringBuilder.length()).toString();
+        componentConfigDao.setPipelines(pipelineName);
+
+        // scheduler
+        String scheduler = model.getScheduler();
+        componentConfigDao.setSchedule(ScriptUtil.getComName(scheduler));
+
+        // downloader
+        String downloader = model.getDownloader();
+        componentConfigDao.setDownloader(ScriptUtil.getComName(downloader));
+
+        return componentConfigDao;
+    }
+
     public void saveSpiderConfig(SpiderConfigDao configDao) {
         spiderConfigMapper.saveConfig(configDao);
     }
@@ -183,5 +282,6 @@ public class TaskConfigService {
     public void saveComponent(ComponentDao componentDao) {
         componentMapper.saveComponent(componentDao);
     }
+
 
 }

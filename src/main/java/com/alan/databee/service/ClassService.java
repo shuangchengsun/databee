@@ -1,11 +1,13 @@
 package com.alan.databee.service;
 
+import com.alan.databee.common.ScriptUtil;
 import com.alan.databee.common.cache.ComLoader;
 import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.dao.mapper.ComponentMapper;
 import com.alan.databee.spider.downloader.HttpClientDownloader;
 import com.alan.databee.spider.downloader.SeleniumDownloader;
 import com.alan.databee.spider.exception.ClassServiceException;
+import com.alan.databee.spider.exception.ScriptException;
 import com.alan.databee.spider.exception.SpiderErrorEnum;
 import com.alan.databee.spider.pipeline.ConsolePipeline;
 import com.alan.databee.spider.pipeline.LogPipeline;
@@ -24,9 +26,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +38,7 @@ public class ClassService implements InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger("scriptAppender");
 
     private LoadingCache<String, Class<?>> classCache;
-    private final Map<String,Object> commonComponent = new HashMap();
+    private final Map<String, Object> commonComponent = new HashMap();
     private final Map<String, Class<?>> basic = new HashMap<>();
 
     @Autowired
@@ -63,7 +63,7 @@ public class ClassService implements InitializingBean {
     }
 
     public Object getComByName(String name)
-            throws ClassServiceException{
+            throws ClassServiceException {
         Object obj = null;
         LoggerUtil.info(logger, "gen class: " + name);
         try {
@@ -71,9 +71,9 @@ public class ClassService implements InitializingBean {
                 return commonComponent.get(name);
             }
             Class<?> aClass = null;
-            if(basic.containsKey(name)){
+            if (basic.containsKey(name)) {
                 aClass = basic.get(name);
-            }else {
+            } else {
                 aClass = classCache.get(name);
             }
             obj = aClass.newInstance();
@@ -99,13 +99,35 @@ public class ClassService implements InitializingBean {
         // 经过分析此处不可能是null。
         return obj;
     }
+
+    public boolean containCom(String com) {
+        return commonComponent.containsKey(com);
+    }
+
+    public boolean checkScript(String script) {
+        if (script == null || script.length() == 0) {
+            return true;
+        }
+        if (!containCom(script)) {
+            try {
+                String name = ScriptUtil.getComName(script);
+                scriptService.genClass(name, script);
+                return true;
+            } catch (ScriptException exception) {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
     private void setComponent() {
-        basic.put(QueueScheduler.class.getName(),QueueScheduler.class);
-        basic.put(PriorityScheduler.class.getName(),PriorityScheduler.class);
-        commonComponent.put(HttpClientDownloader.class.getName(),new HttpClientDownloader());
-        commonComponent.put(SeleniumDownloader.class.getName(),new SeleniumDownloader());
-        commonComponent.put(LogPipeline.class.getName(),new LogPipeline());
-        commonComponent.put(ConsolePipeline.class.getName(),new ConsolePipeline());
+        basic.put(QueueScheduler.class.getName(), QueueScheduler.class);
+        basic.put(PriorityScheduler.class.getName(), PriorityScheduler.class);
+        commonComponent.put(HttpClientDownloader.class.getName(), new HttpClientDownloader());
+        commonComponent.put(SeleniumDownloader.class.getName(), new SeleniumDownloader());
+        commonComponent.put(LogPipeline.class.getName(), new LogPipeline());
+        commonComponent.put(ConsolePipeline.class.getName(), new ConsolePipeline());
 
     }
 }

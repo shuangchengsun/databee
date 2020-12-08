@@ -330,7 +330,7 @@ public class DataBee {
                 } else {
                     onDownloadFail(page, site);
                     result = DebugResultBuilder.buildError(ResultEnum.Downloader_Error);
-                    result.setDownloadStat("fail");
+                    result.setDownloadStat(ResultEnum.Downloader_Error);
                 }
                 request = scheduler.poll(null);
             }
