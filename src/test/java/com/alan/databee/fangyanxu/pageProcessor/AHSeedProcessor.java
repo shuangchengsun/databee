@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -38,8 +39,11 @@ public class AHSeedProcessor implements PageProcessor {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         boolean flag = true;
         try {
-            Date current = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
-//            Date current = simpleDateFormat.parse("2020-11-30");
+            Date today = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            int circle = site.getTaskCircle();
+            calendar.add(Calendar.DATE, -circle);
             for (String s : all) {
                 Document document = DocumentHelper.parseText(s);
                 Element rootElement = document.getRootElement();
@@ -52,15 +56,17 @@ public class AHSeedProcessor implements PageProcessor {
                 Date time = simpleDateFormat.parse(timeString);
                 String href = a.attribute("href").getValue();
                 String title = a.attributeValue("title");
-                if (time.before(current)) {
-                    // 出现了不合规的时间
-                    flag = false;
-                } else {
+                Calendar current = Calendar.getInstance();
+                current.setTime(time);
+                if (current.after(calendar)) {
                     Request request = new Request(href);
                     request.setPriority(1);
                     page.addTargetRequest(request);
+                } else {
+                    // 出现了不合规的时间
+                    flag = false;
                 }
-                System.out.println("time: " + timeString + ", href: " + href + ", title: " + title);
+                // System.out.println("time: " + timeString + ", href: " + href + ", title: " + title);
             }
 
             if (flag) {

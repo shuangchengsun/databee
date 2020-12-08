@@ -25,14 +25,14 @@ public class SpiderManager {
     @Autowired
     TaskService taskService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("taskLogger");
+    private static final Logger LOGGER = LoggerFactory.getLogger("spiderManagerLogger");
 
     private DataBee dataBee = new DataBee().setSync(false);
 
     /**
      * 运行日常的任务。采用Spring的定时调度完成。
      */
-    @Scheduled(cron = "0 10 20 1/1 * ?")
+    @Scheduled(cron = "0 0 18 1/1 * ?")
     public void runDailyTask() {
         Date start = new Date();
         int sum = 0;

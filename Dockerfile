@@ -1,7 +1,11 @@
 FROM openjdk:8u201-jdk-alpine3.9
 VOLUME /tmp
 VOLUME /logs
-#ADD target/databee-1.0.jar app.jar
+
+ENV TZ=Asia/Shanghai
+RUN set -eux; \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime; \
+    echo $TZ > /etc/timezone
 COPY out/artifacts/databee_jar /
 EXPOSE 8081
 

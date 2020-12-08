@@ -2,38 +2,35 @@ package com.alan.databee.fangyanxu;
 
 
 import com.alan.databee.fangyanxu.pageProcessor.*;
-
 import com.alan.databee.model.RequestConfig;
 import com.alan.databee.service.SpiderManager;
 import com.alan.databee.service.Task;
 import com.alan.databee.spider.DataBee;
 import com.alan.databee.spider.Site;
 import com.alan.databee.spider.downloader.HttpClientDownloader;
-
 import com.alan.databee.spider.model.Request;
 import com.alan.databee.spider.pipeline.ConsolePipeline;
 import com.alan.databee.spider.pipeline.LogPipeline;
 import com.alan.databee.spider.scheduler.PriorityScheduler;
-import com.alan.databee.spider.selector.Json;
 import com.alibaba.fastjson.JSON;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootTest
 public class Main {
     @Autowired
     SpiderManager spiderManager;
-    public static void main(String[] args) throws IOException {
-
-        SX();
+    @Test
+    public void main() throws IOException {
+        FJ();
     }
 
-    public static void SX(){
+    public void SX(){
         Request request = new Request("http://www.shanxi.gov.cn/yw/sxyw/index.shtml");
         request.setPriority(0)
                 .setMethod("GET");
@@ -59,7 +56,7 @@ public class Main {
         dataBee.setSync(true);
         dataBee.run(task);
     }
-    public static void FJ(){
+    public void FJ(){
         Request request = new Request("http://www.fujian.gov.cn/was5/web/search?channelid=291575&templet=docs.jsp&sortfield=-DOCORDER&classsql=chnlid%3D41079&prepage=150&page=1");
         request.setPriority(0)
                 .setMethod("GET");
@@ -73,6 +70,7 @@ public class Main {
         System.out.println(json);
 
         Site site = Site.me()
+                .setTaskCircle(7)
                 .setSeed("http://www.fujian.gov.cn/was5/web/search?channelid=291575&templet=docs.jsp&sortfield=-DOCORDER&classsql=chnlid%3D41079&prepage=150&page=1")
                 .setSeedRequest(request)
                 .setScheduler(new PriorityScheduler())
@@ -86,7 +84,7 @@ public class Main {
         dataBee.run(task);
     }
 
-    public static void HN(){
+    public void HN(){
         Request request = new Request("http://www.hunan.gov.cn/hnszf/hnyw/sy/hnyw1/gl_fgsjpx.html");
         request.setMethod("GET")
                 .setPriority(0);
@@ -113,7 +111,7 @@ public class Main {
         dataBee.run(task);
 
     }
-    public static void HB(){
+    public void HB(){
         Request request = new Request("http://www.hubei.gov.cn/zwgk/hbyw/hbywqb/index.shtml");
         request.setPriority(0);
         request.setMethod("GET");
@@ -127,6 +125,7 @@ public class Main {
         System.out.println(json);
 
         Site site = Site.me()
+                .setTaskCircle(7)
                 .setSeed("http://www.hubei.gov.cn/zwgk/hbyw/hbywqb/")
                 .setSeedRequest(request)
                 .setScheduler(new PriorityScheduler())
@@ -142,7 +141,7 @@ public class Main {
 
     }
 
-    public static void AH(){
+    public void AH(){
         Request request = new Request("http://www.ah.gov.cn/content/column/6782061?pageIndex=1")
                 .setPriority(0)
                 .setMethod("GET");
@@ -172,7 +171,7 @@ public class Main {
         dataBee.run(task);
     }
 
-    public static void JX(){
+    public void JX(){
         Request request = new Request("http://www.jiangxi.gov.cn/module/web/jpage/dataproxy.jsp?startrecord=1&endrecord=54&perpage=18");
         request.setMethod("POST");
         request.addHeader("Host", "www.jiangxi.gov.cn");

@@ -49,7 +49,7 @@ Request implements Serializable, Comparable<Request> {
 
     private String charset;
 
-    private int retryTimes = 1;
+    private int retryTimes = 3;
 
 
     public Request(String url) {

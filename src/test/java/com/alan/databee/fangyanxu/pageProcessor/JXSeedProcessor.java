@@ -7,18 +7,15 @@ import com.alan.databee.spider.exception.ClassServiceException;
 import com.alan.databee.spider.model.Request;
 import com.alan.databee.spider.page.Page;
 import com.alan.databee.spider.processor.PageProcessor;
-
 import com.alan.databee.spider.utils.UrlUtils;
 import org.dom4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.rmi.runtime.Log;
-
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +34,11 @@ public class JXSeedProcessor implements PageProcessor {
         boolean flag = true;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         try {
-            Date current = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Date today = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            int circle = site.getTaskCircle();
+            calendar.add(Calendar.DATE, -circle);
             while (matcher.find()) {
                 String group = "<li>" + matcher.group(1) + "</li>";
                 Document document = DocumentHelper.parseText(group);
@@ -46,14 +47,16 @@ public class JXSeedProcessor implements PageProcessor {
                 Element a = rootElement.element("a");
                 String timeString = span.getText();
                 Date time = simpleDateFormat.parse(timeString);
-                if (time.before(current)) {
-                    flag = false;
-                } else {
+                Calendar current = Calendar.getInstance();
+                current.setTime(time);
+                if (current.after(calendar)) {
                     Attribute href = a.attribute("href");
                     String newsName = a.getText();
                     Request request = new Request(href.getValue());
                     request.setPriority(1);
                     page.addTargetRequest(request);
+                } else {
+                    flag = false;
                 }
             }
         } catch (DocumentException | ParseException e) {
@@ -84,7 +87,7 @@ public class JXSeedProcessor implements PageProcessor {
             page.addTargetRequest(newRequest);
         } else {
             // 说明出现了不符合要求的时间数据，后续的不需要在访问
-            site.removeProcessor("seedProcessor");
+            site.removeProcessor("JXSeedProcessor");
             try {
                 Object jxContentProcessor = classService.getComByName("JXContentProcessor");
                 site.processorAddLast("contentProcessor", (PageProcessor) jxContentProcessor);

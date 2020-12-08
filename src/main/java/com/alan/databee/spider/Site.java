@@ -9,6 +9,7 @@ import com.alan.databee.spider.scheduler.Scheduler;
 import com.alan.databee.spider.utils.HttpConstant;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 每个site和一个task一一对应，标志着task的运行上下文以及运行环境。
@@ -48,12 +49,12 @@ public class Site {
     /**
      * 网络请求失败重试次数
      */
-    private int retryTimes = 1;
+    private int retryTimes = 3;
 
     /**
-     * 网络请求失败循环重试次数
+     * 任务的执行周期
      */
-    private int cycleRetryTimes = 0;
+    private int taskCircle = 1;
 
     /**
      * 重试睡眠的时间
@@ -106,7 +107,7 @@ public class Site {
     private Deque<Component> pipelines = new LinkedList<>();
 
     /**
-     * 命名空间
+     * 存放processor和pipeline的名字
      */
     private final Set<String> nameSet = new HashSet<>();
 
@@ -116,9 +117,11 @@ public class Site {
     private Scheduler scheduler;
 
     /**
-     * 描述一个种子最终所有下载处理的页面
+     * 描述一个任务中一共爬取了多少页面
      */
-    private int pageCount;
+    private AtomicInteger pageCount = new AtomicInteger(1);
+
+    private AtomicInteger successPageNum = new AtomicInteger(0);
 
     /**
      * 根种子，一个seed唯一对应于一个task
@@ -242,14 +245,12 @@ public class Site {
         return this;
     }
 
-
-    public int getCycleRetryTimes() {
-        return cycleRetryTimes;
+    public int getTaskCircle() {
+        return taskCircle;
     }
 
-
-    public Site setCycleRetryTimes(int cycleRetryTimes) {
-        this.cycleRetryTimes = cycleRetryTimes;
+    public Site setTaskCircle(int taskCircle) {
+        this.taskCircle = taskCircle;
         return this;
     }
 
@@ -343,6 +344,11 @@ public class Site {
         return this.pageProcessors.isEmpty();
     }
 
+    /**
+     * 此方法并不会删除对应的命名空间中的名字，导致此部分会一直得不到释放
+     * @return
+     */
+    @Deprecated
     public Site processorClear() {
         this.pageProcessors = new LinkedList<>();
         return this;
@@ -397,6 +403,7 @@ public class Site {
         return this.pipelines.isEmpty();
     }
 
+    @Deprecated
     public Site pipelineClear() {
         this.pipelines = new LinkedList<>();
         return this;
@@ -411,8 +418,12 @@ public class Site {
         return this;
     }
 
-    public Site
-    setScheduler(Scheduler scheduler) {
+    /**
+     * 一定要保证seed或者seedRequest在设置调度器之前
+     * @param scheduler
+     * @return
+     */
+    public Site setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
         if(seed == null || seedRequest == null){
             throw new IllegalArgumentException("没有初始化seed或seedRequest");
@@ -434,12 +445,17 @@ public class Site {
         return pipelines;
     }
 
-    public void pageCountAdd(int num){
-        this.pageCount += num;
+    public int pageCountAdd(int num){
+        return this.pageCount.addAndGet(num);
     }
 
+    public int pageCountInc(){
+        return this.pageCount.incrementAndGet();
+    }
+
+
     public int getPageCount() {
-        return pageCount;
+        return pageCount.get();
     }
 
     public String getTaskName() {
@@ -468,7 +484,6 @@ public class Site {
                 ", charset='" + charset + '\'' +
                 ", sleepTime=" + sleepTime +
                 ", retryTimes=" + retryTimes +
-                ", cycleRetryTimes=" + cycleRetryTimes +
                 ", retrySleepTime=" + retrySleepTime +
                 ", timeOut=" + timeOut +
                 ", acceptStatCode=" + acceptStatCode +
@@ -522,5 +537,25 @@ public class Site {
             this.scheduler.push(seedRequest,null);
         }
         return this;
+    }
+
+    public String getDomain() {
+        return Domain;
+    }
+
+    public void setDomain(String domain) {
+        Domain = domain;
+    }
+
+    public int successPageNumInc(){
+        return this.successPageNum.incrementAndGet();
+    }
+
+    public int successPageAdd(int num){
+        return this.successPageNum.addAndGet(num);
+    }
+
+    public int getSuccessPageNum(){
+        return this.successPageNum.get();
     }
 }

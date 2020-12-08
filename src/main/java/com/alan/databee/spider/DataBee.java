@@ -1,10 +1,11 @@
 package com.alan.databee.spider;
 
 import com.alan.databee.builder.DebugResultBuilder;
+import com.alan.databee.common.TaskStatus;
 import com.alan.databee.common.util.log.LoggerUtil;
-
 import com.alan.databee.model.DebugResult;
 import com.alan.databee.model.ResultEnum;
+import com.alan.databee.service.Task;
 import com.alan.databee.spider.downloader.Downloader;
 import com.alan.databee.spider.downloader.HttpClientDownloader;
 import com.alan.databee.spider.exception.SpiderErrorEnum;
@@ -15,12 +16,10 @@ import com.alan.databee.spider.pipeline.ConsolePipeline;
 import com.alan.databee.spider.pipeline.Pipeline;
 import com.alan.databee.spider.processor.PageProcessor;
 import com.alan.databee.spider.scheduler.Scheduler;
-import com.alan.databee.service.Task;
 import com.alan.databee.spider.thread.CountableThreadPool;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.util.Deque;
 import java.util.List;
@@ -32,7 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class DataBee {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("taskRunnerLogger");
+    private static final Logger LOGGER = LoggerFactory.getLogger("dataBee");
 
 
     /**
@@ -122,10 +121,12 @@ public class DataBee {
                     pipeline.process(page.getResultItems(), null);
                 }
             }
-//            site.pageCountAdd(1);
+            site.successPageNumInc();
         } else {
-            // 错误日志格式： 状态，任务名称，页面url，重试次数，失败原因，状态码
-            LoggerUtil.error(LOGGER, "failed", site.getTaskName(), page.getUrl(), 0, "服务器相应的状态码不被接受", page.getStatusCode());
+            // 错误日志格式： 任务名字，是否成功，页面链接，失败原因， 详细信息
+            LoggerUtil.error(LOGGER, site.getTaskName(), TaskStatus.FAILED, page.getUrl(),
+                    SpiderErrorEnum.Unexpect_Status_Code,
+                    page.getStatusCode());
         }
     }
 
@@ -144,24 +145,18 @@ public class DataBee {
         if (site.getRetryTimes() != 0) {
             doCycleRetry(request, site);
         } else {
-            // 错误日志格式： 状态，任务名称，页面url，重试次数，失败原因，状态码
-            LoggerUtil.error(LOGGER, "failed", request.getUrl(), site.getRetryTimes(), SpiderErrorEnum.Download_Error, page.getStatusCode());
-//            throw new SpiderTaskException(SpiderErrorEnum.Download_Error,
-//                    "任务名称：" + site.getTaskName() +
-//                            "网络状态码为：" + page.getStatusCode() +
-//                            ", 失败的页面：" + request.getUrl() +
-//                            ", 已完成的页面： " + site.getPageCount());
+            // 错误日志格式： 任务名称， 任务状态， 页面链接， 状态描述， 详细信息
+            LoggerUtil.error(LOGGER, site.getTaskName(), TaskStatus.FAILED, request.getUrl(),
+                    SpiderErrorEnum.Download_Error, page.getStatusCode());
         }
     }
 
-    private static void doCycleRetry(Request request, Site site) {
+    private void doCycleRetry(Request request, Site site) {
         int retryTimes = request.getRetryTimes();
         if (retryTimes > site.getRetryTimes()) {
             retryTimes = site.getRetryTimes();
         }
-        if (retryTimes < 0) {
-            LoggerUtil.warn(LOGGER, "failed",request.getUrl(),site.getRetryTimes(),"重试达到上限","500");
-        } else {
+        if (retryTimes >= 0) {
             Scheduler scheduler = site.getScheduler();
             request.setRetryTimes(retryTimes - 1);
             scheduler.push(request, null);
@@ -169,7 +164,7 @@ public class DataBee {
         sleep(site.getSleepTime());
     }
 
-    protected static void sleep(int time) {
+    protected void sleep(int time) {
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
@@ -183,7 +178,7 @@ public class DataBee {
     private int runSync(Task task) throws SpiderTaskException {
 
         // 检查是否运行于同步模式
-        if(!sync){
+        if (!sync) {
             return 0;
         }
 
@@ -193,8 +188,9 @@ public class DataBee {
         statSync();
 
         if (!componentInit(site)) {
-            // 错误日志格式： 状态，任务名称，页面url，重试次数，失败原因，page的状态码
-            LoggerUtil.error(LOGGER, "failed", task.taskName, site.getSeed(), 0, "task组件不完整", -1);
+            // 错误日志格式： 任务名， 状态， 页面链接， 状态描述， 详细信息
+            LoggerUtil.error(LOGGER, task.taskName, TaskStatus.FAILED, site.getSeed(),
+                    SpiderErrorEnum.Component_Incomplete, "pageProcessor缺失");
             return 0;
         }
 
@@ -219,11 +215,13 @@ public class DataBee {
             }
 
             long finish = System.currentTimeMillis();
-            // 统计日志格式：状态，任务名称，种子，页面数量，运行时间
-            LoggerUtil.info(LOGGER, "success", task.taskName, site.getSeed(), site.getPageCount(), finish - start);
+            // 统计日志格式：状态，任务名称，种子，成功的页面数量，总页面数量，耗时
+            LoggerUtil.info(LOGGER, TaskStatus.FINISH, task.taskName, site.getSeed(), site.getSuccessPageNum(),
+                    site.getPageCount(), finish - start);
         } else {
-            // 错误日志格式： 状态，任务名称，页面url，重试次数，失败原因，page的状态码
-            LoggerUtil.error(LOGGER, "failed", task.taskName, site.getSeed(), 0, "DataBee已经被关闭", -1);
+            // 错误日志格式： 任务名称， 状态， 页面， 状态描述， 详细信息
+            LoggerUtil.error(LOGGER, task.taskName, TaskStatus.FAILED, site.getSeed(),
+                    SpiderErrorEnum.DataBee_Status_Error, "DataBee不在运行态");
             res = 0;
         }
         taskFinish();
@@ -258,7 +256,9 @@ public class DataBee {
         try {
             statLock.lock();
             if (!stat.compareAndSet(STAT_RUNNING, STAT_INIT)) {
-                LoggerUtil.warn(LOGGER, "DataBee 状态设定错误，从Running到Init，出现线程安全问题");
+                // 任务名， 状态， 页面， 状态描述， 详细信息
+                LoggerUtil.error(LOGGER, "mate-taskFinish", TaskStatus.FAILED, "Function: taskFinish()",
+                        SpiderErrorEnum.DataBee_Status_Error, "将DataBee从运行态设置为就绪态时发生错误");
                 close();
             }
             statCondition.signalAll();
@@ -296,7 +296,7 @@ public class DataBee {
 
     }
 
-    private class RunnerTask implements Callable{
+    private class RunnerTask implements Callable {
         Task task;
 
         public RunnerTask(Task task) {
@@ -306,15 +306,15 @@ public class DataBee {
         @Override
         public DebugResult call() throws Exception {
             DebugResult result = null;
-            if(task == null){
+            if (task == null) {
                 throw new NullPointerException("task is null");
             }
 
             Site site = task.getSite();
             if (!componentInit(site)) {
-                // 错误日志格式： 状态，任务名称，页面url，重试次数，失败原因，page的状态码
-                LoggerUtil.error(LOGGER, "failed", task.taskName, site.getSeed(), 0, "task组件不完整", -1);
-                result = DebugResultBuilder.buildError(ResultEnum.Component_Missing);
+                // 错误日志格式： 任务名， 状态， 页面链接， 状态描述， 详细信息
+                LoggerUtil.error(LOGGER, task.taskName, TaskStatus.FAILED, site.getSeed(),
+                        SpiderErrorEnum.Component_Incomplete, "pageProcessor缺失");
                 return result;
             }
             Scheduler scheduler = site.getScheduler();
@@ -336,9 +336,10 @@ public class DataBee {
             }
 
             long finish = System.currentTimeMillis();
-            // 统计日志格式：状态，任务名称，种子，页面数量，运行时间
-            LoggerUtil.info(LOGGER, "success", task.taskName, site.getSeed(), site.getPageCount(), finish - start);
-            if(result == null){
+            // 统计日志格式：状态，任务名称，种子，成功的页面数量，总页面数量，耗时
+            LoggerUtil.info(LOGGER, TaskStatus.FINISH, task.taskName, site.getSeed(), site.getSuccessPageNum(),
+                    site.getPageCount(), finish - start);
+            if (result == null) {
                 result = DebugResultBuilder.buildSuccess();
             }
             return result;

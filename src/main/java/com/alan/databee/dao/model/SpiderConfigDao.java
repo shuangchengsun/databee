@@ -37,6 +37,8 @@ public class SpiderConfigDao {
 
     private String seedRequestConfig;
 
+    private int circle;
+
     public int getId() {
         return id;
     }
@@ -147,5 +149,13 @@ public class SpiderConfigDao {
 
     public void setSeedRequestConfig(String seedRequestConfig) {
         this.seedRequestConfig = seedRequestConfig;
+    }
+
+    public int getCircle() {
+        return circle;
+    }
+
+    public void setCircle(int circle) {
+        this.circle = circle;
     }
 }
