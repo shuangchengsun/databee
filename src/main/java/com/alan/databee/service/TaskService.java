@@ -1,21 +1,31 @@
 package com.alan.databee.service;
 
-import com.alan.databee.common.ScriptUtil;
 import com.alan.databee.common.util.StringUtil;
 import com.alan.databee.dao.model.ComponentConfigDao;
 import com.alan.databee.dao.model.ComponentDao;
 import com.alan.databee.dao.model.SpiderConfigDao;
 import com.alan.databee.model.*;
+import com.alan.databee.spider.Site;
+import com.alan.databee.spider.downloader.Downloader;
 import com.alan.databee.spider.exception.ScriptException;
 import com.alan.databee.spider.exception.SpiderErrorEnum;
+import com.alan.databee.spider.exception.SpiderTaskException;
+import com.alan.databee.spider.model.Request;
+import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
-import com.alan.databee.spider.script.ScriptService;
+import com.alan.databee.spider.pipeline.EchoPipeline;
+import com.alan.databee.spider.pipeline.Pipeline;
+import com.alan.databee.spider.processor.impl.ListenProcessor;
+import com.alan.databee.spider.processor.PageProcessor;
+import com.alan.databee.spider.scheduler.Scheduler;
+import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 /**
  * @ClassName TaskServie
@@ -47,11 +57,53 @@ public class TaskService {
 
     /**
      * 依据发送的数据，生成一个Task
+     *
      * @param model
      * @return
      */
     public Task genTask(BusyReqModel model) {
-        return null;
+        SpiderTaskConfig taskConfig = new SpiderTaskConfig();
+        SpiderComponentConfig componentConfig = new SpiderComponentConfig();
+        try {
+            Downloader downloader = (Downloader) classService.genCom(model.getDownloader());
+            componentConfig.setDownloader(downloader);
+
+            Scheduler scheduler = (Scheduler) classService.genCom(model.getScheduler());
+            componentConfig.setScheduler(scheduler);
+
+            // 仅支持一个
+            List<String> pageProcessor = model.getPageProcessor();
+            PageProcessor processor = (PageProcessor) classService.genCom(pageProcessor.get(0));
+            componentConfig.setPageProcessor(processor);
+
+            List<Pipeline> pipelines = new ArrayList<>();
+            pipelines.add(new EchoPipeline());
+            componentConfig.setPipelines(pipelines);
+
+        } catch (ScriptException | IllegalAccessException | InstantiationException e) {
+            throw new SpiderTaskException(SpiderErrorEnum.Script_Compiler_Error, e);
+        }
+
+        taskConfig.setTaskName(model.getTaskName());
+        taskConfig.setCircle(1);
+        taskConfig.setPriority(1);
+        taskConfig.setSpiderComponentConfig(componentConfig);
+        taskConfig.setUrl(model.getSeed());
+
+        String requestString = (String) model.getParam().get("requestConfig");
+        RequestConfig requestConfig = JSON.parseObject(requestString, RequestConfig.class);
+        Request request = new Request(requestConfig.getUrl())
+                .setMethod(requestConfig.getMethod())
+                .setPriority(requestConfig.getPriority())
+                .setHeaders(requestConfig.getHeaders())
+                .setExtras(requestConfig.getExtras());
+
+        taskConfig.setSeedRequest(request);
+
+        Task task = new Task(taskConfig);
+        Site site = task.getSite();
+        site.processorAddLast("ListenProcessor", new ListenProcessor());
+        return task;
     }
 
     /**
@@ -121,9 +173,9 @@ public class TaskService {
     }
 
     private boolean preCheck(BusyReqModel model, int busyType) {
-        if (model.getBusyCode() != busyType) {
-            return false;
-        }
+//        if (model.getBusyCode() != busyType) {
+//            return false;
+//        }
         if (StringUtil.isEmpty(model.getSeed()) || StringUtil.isBlank(model.getSeed())) {
             return false;
         }

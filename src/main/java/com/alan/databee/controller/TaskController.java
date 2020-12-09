@@ -64,7 +64,8 @@ public class TaskController {
                 break;
             }
             case 1: {
-                spiderManager.runDebugTask(reqModel);
+                result = spiderManager.runDebugTask(reqModel);
+                break;
             }
             default: {
                 result = DebugResultBuilder.buildError(ResultEnum.Undefined_Option);

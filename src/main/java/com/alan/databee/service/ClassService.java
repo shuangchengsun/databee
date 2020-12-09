@@ -62,6 +62,27 @@ public class ClassService implements InitializingBean {
         setComponent();
     }
 
+    public Object genCom(String script) throws ScriptException, IllegalAccessException, InstantiationException {
+        if (commonComponent.containsKey(script)) {
+            return commonComponent.get(script);
+        }
+        Class<?> aClass = null;
+        if (basic.containsKey(script)) {
+            aClass = basic.get(script);
+        } else {
+            aClass = scriptService.genClass(ScriptUtil.getComName(script), script);
+        }
+        Object obj = aClass.newInstance();
+        try {
+            Method method = aClass.getMethod("setClassService", ClassService.class);
+            method.invoke(obj, this);
+        } catch (InvocationTargetException | NoSuchMethodException exception) {
+            return obj;
+        }
+        return obj;
+
+    }
+
     public Object getComByName(String name)
             throws ClassServiceException {
         Object obj = null;

@@ -558,4 +558,18 @@ public class Site {
     public int getSuccessPageNum(){
         return this.successPageNum.get();
     }
+
+    public Object getComByName(String name){
+        for(Component component : pageProcessors){
+            if(component.name.equals(name)){
+               return component.getCom();
+            }
+        }
+        for(Component component : pipelines){
+            if(component.name.equals(name)){
+                return component.getCom();
+            }
+        }
+        return null;
+    }
 }

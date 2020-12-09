@@ -1,12 +1,9 @@
 package com.alan.databee.service;
 
-import com.alan.databee.common.util.log.LoggerUtil;
 import com.alan.databee.spider.Site;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
 import com.alan.databee.spider.pipeline.Pipeline;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @ClassName SpiderWorker
@@ -21,7 +18,7 @@ public class Task implements Comparable<Task> {
     public String taskName;
     private Site site;
 
-    public Task(SpiderTaskConfig taskConfig){
+    public Task(SpiderTaskConfig taskConfig) {
         this.taskConfig = taskConfig;
         this.taskName = taskConfig.getTaskName();
         this.priority = taskConfig.getPriority();
@@ -36,10 +33,10 @@ public class Task implements Comparable<Task> {
         for (Pipeline pipeline : componentConfig.getPipelines()) {
             site.pipelineAddLast(pipeline);
         }
-        site.processorAddLast(componentConfig.getPageProcessor().getClass().getName(),componentConfig.getPageProcessor());
+        site.processorAddLast(componentConfig.getPageProcessor().getClass().getName(), componentConfig.getPageProcessor());
     }
 
-    public Task(Site site, String taskName,int priority) {
+    public Task(Site site, String taskName, int priority) {
         this.site = site;
         this.taskName = taskName;
         this.priority = priority;
