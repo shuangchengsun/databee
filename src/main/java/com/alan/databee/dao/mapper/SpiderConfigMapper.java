@@ -19,6 +19,9 @@ public interface SpiderConfigMapper {
     @Select(value = "SELECT * FROM spider_config WHERE task_type='daily'")
     List<SpiderConfigDao> getDaily();
 
+    @Select(value = "SELECT * FROM spider_config WHERE task_name=#{name}")
+    SpiderConfigDao getByName(String name);
+
     @Insert("INSERT INTO spider_config (task_type,task_name,creator,gmt_create,gmt_modify,modifier,component_config,depth" +
             "expire_time,url,priority,thread) VALUES (#{dao.taskType}, #{dao.taskName},#{dao.creator},#{dao.gmtCreate},#{dao.gmtModify}," +
             "#{dao.modifier}#{dao.componentConfig},#{dao.depth},#{dao.expireTime},#{dao.url},#{dao.priority},#{dao.thread})")

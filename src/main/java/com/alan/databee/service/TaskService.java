@@ -13,10 +13,10 @@ import com.alan.databee.spider.exception.SpiderTaskException;
 import com.alan.databee.spider.model.Request;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
-import com.alan.databee.spider.pipeline.EchoPipeline;
+import com.alan.databee.spider.pipeline.ConsolePipeline;
 import com.alan.databee.spider.pipeline.Pipeline;
-import com.alan.databee.spider.processor.impl.ListenProcessor;
 import com.alan.databee.spider.processor.PageProcessor;
+import com.alan.databee.spider.processor.impl.ListenProcessor;
 import com.alan.databee.spider.scheduler.Scheduler;
 import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +77,7 @@ public class TaskService {
             componentConfig.setPageProcessor(processor);
 
             List<Pipeline> pipelines = new ArrayList<>();
-            pipelines.add(new EchoPipeline());
+            pipelines.add(new ConsolePipeline());
             componentConfig.setPipelines(pipelines);
 
         } catch (ScriptException | IllegalAccessException | InstantiationException e) {
@@ -90,7 +90,7 @@ public class TaskService {
         taskConfig.setSpiderComponentConfig(componentConfig);
         taskConfig.setUrl(model.getSeed());
 
-        String requestString = (String) model.getParam().get("requestConfig");
+        String requestString = (String) model.getSeedRequestConfig();
         RequestConfig requestConfig = JSON.parseObject(requestString, RequestConfig.class);
         Request request = new Request(requestConfig.getUrl())
                 .setMethod(requestConfig.getMethod())
@@ -173,9 +173,7 @@ public class TaskService {
     }
 
     private boolean preCheck(BusyReqModel model, int busyType) {
-//        if (model.getBusyCode() != busyType) {
-//            return false;
-//        }
+
         if (StringUtil.isEmpty(model.getSeed()) || StringUtil.isBlank(model.getSeed())) {
             return false;
         }
@@ -196,5 +194,10 @@ public class TaskService {
         result.setStat(result.getStat());
         result.setMsg(resultEnum.getStatMsg());
         return result;
+    }
+
+    public Task AssemblyTask(String taskName){
+        SpiderTaskConfig taskConfig = configService.getTaskConfig(taskName);
+        return new Task(taskConfig);
     }
 }

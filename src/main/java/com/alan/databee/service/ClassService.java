@@ -1,5 +1,6 @@
 package com.alan.databee.service;
 
+import com.alan.databee.common.BeanUtil;
 import com.alan.databee.common.ScriptUtil;
 import com.alan.databee.common.cache.ComLoader;
 import com.alan.databee.common.util.log.LoggerUtil;
@@ -21,8 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -49,6 +52,9 @@ public class ClassService implements InitializingBean {
 
     @Autowired
     private ScriptService scriptService;
+
+    @Autowired
+    private BeanUtil beanUtil;
 
     public ClassService() {
     }
@@ -98,6 +104,20 @@ public class ClassService implements InitializingBean {
                 aClass = classCache.get(name);
             }
             obj = aClass.newInstance();
+            // 获取全部的属性
+            Field[] fields = aClass.getFields();
+            for(Field field : fields){
+                Autowired annotation = field.getAnnotation(Autowired.class);
+                if(annotation != null){
+                    String fieldName = field.getName();
+                    Field declaredField = obj.getClass().getDeclaredField(fieldName);
+                    declaredField.setAccessible(true);
+                    Class<?> type = declaredField.getType();
+                    ApplicationContext applicationContext = beanUtil.getApplicationContext();
+                    Object bean = applicationContext.getBean(type);
+                    declaredField.set(obj,bean);
+                }
+            }
             Method method = aClass.getMethod("setClassService", ClassService.class);
             method.invoke(obj, this);
         } catch (RuntimeException | ExecutionException exception) {
@@ -116,6 +136,8 @@ public class ClassService implements InitializingBean {
             // 此处表明类的初始化方法执行错误。
             LoggerUtil.error(logger, "类初始化错误，name: " + name, exception);
             throw new ClassServiceException(SpiderErrorEnum.Class_Init_Error, exception);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
         }
         // 经过分析此处不可能是null。
         return obj;

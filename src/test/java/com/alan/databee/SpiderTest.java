@@ -21,19 +21,11 @@ import java.util.regex.Pattern;
 @SpringBootTest
 public class SpiderTest {
 
-//    @Autowired
-//    SpiderManager manager;
+    @Autowired
+    SpiderManager manager;
 
     @Test
     public void spiderManagerTest() throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date today = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(today);
-        calendar.add(Calendar.DATE,-7);
-        Date time = simpleDateFormat.parse("2020-12-02 22:12:03.352");
-        Calendar calendar1 = Calendar.getInstance();
-        calendar1.setTime(time);
-        System.out.println(calendar1.after(calendar));
+        manager.runTaskByName("FxySx");
     }
 }

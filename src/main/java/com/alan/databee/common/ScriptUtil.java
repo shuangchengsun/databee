@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class ScriptUtil {
 
     public static String getComName(String script) throws ScriptException {
-        Pattern pattern = Pattern.compile("^public(?<type>\\w+|\\s+)class (?<name>\\w+)");
+        Pattern pattern = Pattern.compile("public class ([a-zA-Z]+)+ ");
         Matcher matcher = pattern.matcher(script);
         int find = 0;
         String name = null;
@@ -18,7 +18,7 @@ public class ScriptUtil {
                 throw new ScriptException(SpiderErrorEnum.Script_ClassNum_Error);
             }
             find++;
-            name = matcher.group(2);
+            name = matcher.group(1);
         }
         return name;
     }

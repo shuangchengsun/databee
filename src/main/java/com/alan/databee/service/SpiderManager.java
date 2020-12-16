@@ -95,4 +95,10 @@ public class SpiderManager {
 
         return null;
     }
+
+    public void runTaskByName(String taskName){
+        Task task = taskService.AssemblyTask(taskName);
+        dataBee.run(task);
+
+    }
 }

@@ -12,6 +12,7 @@ import com.alan.databee.dao.model.SpiderConfigDao;
 import com.alan.databee.dao.model.UserDao;
 import com.alan.databee.model.BusyReqModel;
 import com.alan.databee.model.RequestConfig;
+import com.alan.databee.model.User;
 import com.alan.databee.spider.downloader.Downloader;
 import com.alan.databee.spider.downloader.HttpClientDownloader;
 import com.alan.databee.spider.exception.ClassServiceException;
@@ -19,7 +20,6 @@ import com.alan.databee.spider.exception.ScriptException;
 import com.alan.databee.spider.model.Request;
 import com.alan.databee.spider.model.SpiderComponentConfig;
 import com.alan.databee.spider.model.SpiderTaskConfig;
-import com.alan.databee.model.User;
 import com.alan.databee.spider.pipeline.ConsolePipeline;
 import com.alan.databee.spider.pipeline.Pipeline;
 import com.alan.databee.spider.processor.PageProcessor;
@@ -66,61 +66,9 @@ public class TaskConfigService {
         List<SpiderTaskConfig> taskConfigs = new LinkedList<>();
 
         for (SpiderConfigDao spiderConfigDao : daily) {
-            SpiderTaskConfig taskConfig = new SpiderTaskConfig();
-
-            String creator = spiderConfigDao.getCreator();
-            UserDao userdao = userMapper.getByName(creator);
-            taskConfig.setCreator(userDaoToUser(userdao));
-
-            taskConfig.setDepth(spiderConfigDao.getDepth());
-
-            taskConfig.setExpire(spiderConfigDao.getExpireTime());
-
-            taskConfig.setGmtCreate(spiderConfigDao.getGmtCreate());
-
-            taskConfig.setGmtModify(spiderConfigDao.getGmtModify());
-
-            taskConfig.setCircle(spiderConfigDao.getCircle());
-
-            String modifierName = spiderConfigDao.getModifier();
-            UserDao modifierDao = userMapper.getByName(modifierName);
-            taskConfig.setModifier(userDaoToUser(modifierDao));
-
-            taskConfig.setPriority(spiderConfigDao.getPriority());
-
-
             String componentConfigName = spiderConfigDao.getComponentConfig();
             ComponentConfigDao componentConfigDao = componentConfigMapper.getByName(componentConfigName);
-
-            try {
-                RequestConfig requestConfig = JSON.parseObject(spiderConfigDao.getSeedRequestConfig(), RequestConfig.class);
-                Request request = new Request(requestConfig.getUrl());
-                request.setPriority(requestConfig.getPriority());
-                request.setMethod(requestConfig.getMethod());
-                request.setHeaders(requestConfig.getHeaders());
-                request.setExtras(requestConfig.getExtras());
-                taskConfig.setSeedRequest(request);
-
-
-                taskConfig.setSpiderComponentConfig(componentConfigCreator(componentConfigDao));
-
-                taskConfig.setTaskName(spiderConfigDao.getTaskName());
-
-                taskConfig.setTaskType(spiderConfigDao.getTaskType());
-
-                taskConfig.setUrl(spiderConfigDao.getUrl());
-
-                taskConfig.setThread(spiderConfigDao.getThread());
-
-                // 打印出一个task的基础配置
-                LoggerUtil.info(LOGGER, taskConfig.getTaskName(), taskConfig.getCreator(), taskConfig.getModifier(),
-                        componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
-                        componentConfigDao.getPipelines());
-            } catch (ClassServiceException e) {
-                // 错误日志
-                LoggerUtil.error(LOGGER, taskConfig.getTaskName(), componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
-                        componentConfigDao.getPipelines(), e);
-            }
+            SpiderTaskConfig taskConfig = assembly(spiderConfigDao, componentConfigDao);
             // 此处不管taskConfig是否合法，都加载到总任务中
             taskConfigs.add(taskConfig);
         }
@@ -197,6 +145,7 @@ public class TaskConfigService {
         configDao.setTaskType("daily");
         configDao.setThread(1);
         configDao.setUrl(model.getSeed());
+        configDao.setSeedRequestConfig(model.getSeedRequestConfig());
         return configDao;
     }
 
@@ -281,6 +230,70 @@ public class TaskConfigService {
 
     public void saveComponent(ComponentDao componentDao) {
         componentMapper.saveComponent(componentDao);
+    }
+
+    public SpiderTaskConfig getTaskConfig(String taskName){
+        SpiderConfigDao spiderConfigDao = spiderConfigMapper.getByName(taskName);
+        String componentConfigName = spiderConfigDao.getComponentConfig();
+        ComponentConfigDao componentConfigDao = componentConfigMapper.getByName(componentConfigName);
+        return assembly(spiderConfigDao, componentConfigDao);
+    }
+
+    public SpiderTaskConfig assembly(SpiderConfigDao spiderConfigDao, ComponentConfigDao componentConfigDao){
+        SpiderTaskConfig taskConfig = new SpiderTaskConfig();
+
+        String creator = spiderConfigDao.getCreator();
+        UserDao userdao = userMapper.getByName(creator);
+        taskConfig.setCreator(userDaoToUser(userdao));
+
+        taskConfig.setDepth(spiderConfigDao.getDepth());
+
+        taskConfig.setExpire(spiderConfigDao.getExpireTime());
+
+        taskConfig.setGmtCreate(spiderConfigDao.getGmtCreate());
+
+        taskConfig.setGmtModify(spiderConfigDao.getGmtModify());
+
+        taskConfig.setCircle(spiderConfigDao.getCircle());
+
+        String modifierName = spiderConfigDao.getModifier();
+        UserDao modifierDao = userMapper.getByName(modifierName);
+        taskConfig.setModifier(userDaoToUser(modifierDao));
+
+        taskConfig.setPriority(spiderConfigDao.getPriority());
+
+        try {
+            RequestConfig requestConfig = JSON.parseObject(spiderConfigDao.getSeedRequestConfig(), RequestConfig.class);
+            Request request = new Request(requestConfig.getUrl());
+            request.setPriority(requestConfig.getPriority());
+            request.setMethod(requestConfig.getMethod());
+            request.setHeaders(requestConfig.getHeaders());
+            request.setExtras(requestConfig.getExtras());
+            taskConfig.setSeedRequest(request);
+
+
+            taskConfig.setSpiderComponentConfig(componentConfigCreator(componentConfigDao));
+
+            taskConfig.setTaskName(spiderConfigDao.getTaskName());
+
+            taskConfig.setTaskType(spiderConfigDao.getTaskType());
+
+            taskConfig.setUrl(spiderConfigDao.getUrl());
+
+            taskConfig.setThread(spiderConfigDao.getThread());
+
+            // 打印出一个task的基础配置
+            LoggerUtil.info(LOGGER, taskConfig.getTaskName(), taskConfig.getCreator(), taskConfig.getModifier(),
+                    componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
+                    componentConfigDao.getPipelines());
+        } catch (ClassServiceException e) {
+            // 错误日志
+            LoggerUtil.error(LOGGER, taskConfig.getTaskName(), componentConfigDao.getDownloader(), componentConfigDao.getSchedule(), componentConfigDao.getPageProcessor(),
+                    componentConfigDao.getPipelines(), e);
+        }
+
+        return taskConfig;
+
     }
 
 

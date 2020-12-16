@@ -50,12 +50,13 @@ public class TaskController {
                 userName = tokenUtil.parseToken(value);
             }
         }
-        if (userName == null) {
-            LoggerUtil.error(LOGGER, "user is null,用户未登录，或者cookie过期");
-            result = DebugResultBuilder.buildError(ResultEnum.User_Need_Login);
-            return result;
-        }
-        User user = userService.searchUserByName(userName);
+//        if (userName == null) {
+//            LoggerUtil.error(LOGGER, "user is null,用户未登录，或者cookie过期");
+//            result = DebugResultBuilder.buildError(ResultEnum.User_Need_Login);
+//            return result;
+//        }
+//        User user = userService.searchUserByName(userName);
+        User user = null;
 
         switch (busyCode) {
             // 默认提交任务

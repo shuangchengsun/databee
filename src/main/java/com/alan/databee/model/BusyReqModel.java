@@ -8,7 +8,7 @@ public class BusyReqModel {
     /**
      * 业务码
      */
-    private int busyCode;
+    private int busyCode = 1;
 
     /**
      * 业务描述
@@ -48,9 +48,11 @@ public class BusyReqModel {
     /**
      * 额外的参数
      */
-    private Map<String, Object> param;
+//    private Map<String, Object> param;
 
     private String TaskName;
+
+    private String seedRequestConfig;
 
     public int getBusyCode() {
         return busyCode;
@@ -116,13 +118,13 @@ public class BusyReqModel {
         this.pipeline = pipeline;
     }
 
-    public Map<String, Object> getParam() {
-        return param;
-    }
-
-    public void setParam(Map<String, Object> param) {
-        this.param = param;
-    }
+//    public Map<String, Object> getParam() {
+//        return param;
+//    }
+//
+//    public void setParam(Map<String, Object> param) {
+//        this.param = param;
+//    }
 
     public String getTaskName() {
         return TaskName;
@@ -130,5 +132,13 @@ public class BusyReqModel {
 
     public void setTaskName(String taskName) {
         TaskName = taskName;
+    }
+
+    public String getSeedRequestConfig() {
+        return seedRequestConfig;
+    }
+
+    public void setSeedRequestConfig(String seedRequestConfig) {
+        this.seedRequestConfig = seedRequestConfig;
     }
 }
