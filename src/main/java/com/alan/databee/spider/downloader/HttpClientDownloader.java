@@ -103,6 +103,7 @@ public class HttpClientDownloader extends AbstractDownloader {
         } catch (IOException e) {
             logger.warn("download page {} error", request.getUrl(), e);
             onError(request);
+            page.setDownloadSuccess(false);
             return page;
         } finally {
             if (httpResponse != null) {
@@ -168,11 +169,17 @@ public class HttpClientDownloader extends AbstractDownloader {
     }
 
     private String getHtmlCharset(String contentType, byte[] contentBytes) throws IOException {
+
         String charset = CharsetUtils.detectCharset(contentType, contentBytes);
         if (charset == null) {
             charset = Charset.defaultCharset().name();
             logger.warn("Charset autodetect failed, use {} as charset. Please specify charset in Site.setCharset()", Charset.defaultCharset());
         }
         return charset;
+    }
+
+    @Override
+    public void shutdown() {
+
     }
 }

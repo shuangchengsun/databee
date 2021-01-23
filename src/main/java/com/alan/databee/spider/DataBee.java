@@ -77,6 +77,8 @@ public class DataBee {
     private BlockingQueue<FutureTask> taskBlockingQueue = null;
 
 
+
+
     public DataBee() {
 
     }
@@ -97,6 +99,7 @@ public class DataBee {
     }
 
     public int run(Task task) {
+
         return runSync(task);
     }
 
@@ -142,7 +145,10 @@ public class DataBee {
 
     private void onDownloadFail(Page page, Site site) {
         Request request = page.getRequest();
-        if (site.getRetryTimes() != 0) {
+        if (site.getRetryTimes() > 0) {
+            if(request.getRetryTimes()>site.getRetryTimes()){
+                request.setRetryTimes(site.getRetryTimes());
+            }
             doCycleRetry(request, site);
         } else {
             // 错误日志格式： 任务名称， 任务状态， 页面链接， 状态描述， 详细信息
@@ -153,9 +159,6 @@ public class DataBee {
 
     private void doCycleRetry(Request request, Site site) {
         int retryTimes = request.getRetryTimes();
-        if (retryTimes > site.getRetryTimes()) {
-            retryTimes = site.getRetryTimes();
-        }
         if (retryTimes >= 0) {
             Scheduler scheduler = site.getScheduler();
             request.setRetryTimes(retryTimes - 1);

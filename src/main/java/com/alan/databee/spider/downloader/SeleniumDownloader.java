@@ -128,4 +128,14 @@ public class SeleniumDownloader implements Downloader, Closeable {
 	public void close() throws IOException {
 		webDriverPool.closeAll();
 	}
+
+	@Override
+	public void shutdown() {
+		try {
+			close();
+		}catch (IOException e){
+			System.out.println("something got wrong when close webDriver");
+			logger.warn(e.getMessage());
+		}
+	}
 }
